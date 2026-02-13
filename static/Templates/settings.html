@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>settings</title>
+  </head>
+  <body>
+    <div id="settings">
+      <h1>Paramètre</h1>
+      <h2>Volume</h2>
+      <div id="volume">
+        <label for="music-Volume">Volume music</label>
+        <input
+          type="range"
+          id="music"
+          id="musicVolume"
+          min="0"
+          max="100"
+          value="50"
+        />
+      </div>
+      <h2>Affichage</h2>
+      <input type="range" id="brightness" min="50" max="150" value="100" />
+      <span>100%</span>
+    </div>
+    <button id="saveBtn">Sauvegarde</button>
+  </body>
+</html>

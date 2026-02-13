@@ -6,7 +6,7 @@
 
 body {
   height: 100vh;
-  background: url("../ImageWithNoCSS/Acceuil.png") no-repeat center center/cover;
+  background: url("../Image/ImageWithNoCSS/Acceuil.png") no-repeat center center/cover;
   display: flex;
   justify-content: center;
   align-items: center;
