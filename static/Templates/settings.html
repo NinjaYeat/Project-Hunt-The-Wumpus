@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>settings</title>
+    <link rel="stylesheet" href="../CSS/settings.css">
+    <script src="../JS/settings.js" type="javascript"></script>
   </head>
   <body>
     <div id="settings">
       <h1>Paramètre</h1>
       <h2>Volume</h2>
       <div id="volume">
+        <button id="playMusic">Play music</button>
+        <button id ="pauseMusic">Pause music</button>
         <label for="music-Volume">Volume music</label>
         <input
           type="range"
@@ -22,8 +26,8 @@
       </div>
       <h2>Affichage</h2>
       <input type="range" id="brightness" min="50" max="150" value="100" />
-      <span>100%</span>
+      <!--<span>100%</span>--> <!-- je dois trouver un moyen de le faire changer de valeur ou de voir ou ça beug dans le settings.js-->
+      <button id="saveBtn">Sauvegarde</button>
     </div>
-    <button id="saveBtn">Sauvegarde</button>
   </body>
 </html>
