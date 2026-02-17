@@ -15,9 +15,9 @@ def login():
 def classement():
     return render_template("classement.html")
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
 @app.route("/settings")
 def settings():
     return render_template("settings.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)

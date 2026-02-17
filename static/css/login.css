@@ -1,0 +1,121 @@
+/* login.css */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Press Start 2P', cursive;
+    background: url('../img/ui/login.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.login-container {
+    background-color: rgba(0, 0, 0, 0.7); 
+    padding: 40px 30px;
+    border: 3px solid #fff;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 0 20px #0ff;
+}
+
+.login-container h1 {
+    color: #fff;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.login-container label {
+    display: block;
+    text-align: left;
+    color: #fff;
+    margin-bottom: 5px;
+    font-size: 8px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 2px solid #0ff;
+    border-radius: 4px;
+    background-color: #111;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+}
+
+.login-container button {
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    background-color: #ff2f5b;
+    color: #fff;
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-container button:hover {
+    background-color: #ff1a3c;
+}
+
+.back-link {
+    display: block;
+    margin-top: 20px;
+    color: #0ff;
+    text-decoration: none;
+    font-size: 8px;
+}
+
+.back-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* ===== Media Queries pour Responsive ===== */
+
+/* Tablettes */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 30px 20px;
+    }
+
+    .login-container h1 {
+        font-size: 14px;
+    }
+
+    .login-container label,
+    .login-container input,
+    .login-container button,
+    .back-link {
+        font-size: 7px;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 20px 15px;
+    }
+
+    .login-container h1 {
+        font-size: 12px;
+    }
+
+    .login-container label,
+    .login-container input,
+    .login-container button,
+    .back-link {
+        font-size: 6px;
+    }
+
+    .login-container button {
+        padding: 8px 15px;
+    }
+}

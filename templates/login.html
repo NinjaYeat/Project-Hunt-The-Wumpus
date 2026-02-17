@@ -2,16 +2,28 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Wumpus</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création de compte - Wumpus</title>
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='img/logo/icon Hunt The Wumpus.jpg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/music.js') }}"></script>
 </head>
-
-<body style="background-color:black; color:white; text-align:center;">
-
-    <h1>PAGE LOGIN</h1>
-    <p>formulaire</p>
-
-    <a href="{{ url_for('home') }}">Retour</a>
+<body>
+    <div class="login-wrapper">
+        <div class="login-container">
+            <h1>Création de compte</h1>
+            <form id="gamerLogin">
+                <label for="pseudo">Pseudo :</label>
+                <input type="text" id="pseudo" name="pseudo" placeholder="Veuillez saisir votre pseudo !" required>
+                
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" placeholder="Veuillez saisir votre mot de passe" required>
+                
+                <button type="submit">Créer le compte</button>
+            </form>
+            <a href="{{ url_for('home') }}" class="back-link">← Retour</a>
+        </div>
+    </div>
 </body>
 </html>
