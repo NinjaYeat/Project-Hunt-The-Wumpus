@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Hunt The Wumpus{% endblock %}</title>
+
+    {% block css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+    {% block content %}{% endblock %}
+
+    <!-- Musique globale -->
+    <script src="{{ url_for('static', filename='js/music.js') }}"></script>
+
+    <!-- JS spécifique à chaque page -->
+    {% block js %}{% endblock %}
+
+</body>
+</html>

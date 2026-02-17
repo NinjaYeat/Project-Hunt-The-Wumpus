@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Hunt The Wumpus{% endblock %}
+{% block body_class %}screen-settings{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="settings">
+  <h1>Paramètres</h1>
+
+  <h2>Volume</h2>
+  <div id="volume">
+    <button id="playMusic" type="button">Play music</button>
+    <button id="pauseMusic" type="button">Pause music</button>
+
+    <label for="musicVolume">Volume music</label>
+    <input
+      type="range"
+      id="musicVolume"
+      min="0"
+      max="100"
+      value="50"
+    />
+  </div>
+
+  <h2>Affichage</h2>
+  <label for="brightness">Luminosité</label>
+  <input type="range" id="brightness" min="50" max="150" value="100" />
+
+  <button id="saveBtn" type="button">Sauvegarder</button>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Hunt The Wumpus{% endblock %}
+{% block body_class %}screen-gamefirst{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homeScreen.css') }}">
+<link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='img/logo/icon Hunt The Wumpus.jpg') }}">
+{% endblock %}
+
+{% block content %}
+<div class="gf">
+  <div class="gf__vignette"></div>
+
+  <div class="gf__content">
+    <h1 class="gf__title">
+      <span class="gf__title-big">HUNT</span>
+      <span class="gf__title-small">THE</span>
+      <span class="gf__title-big">WUMPUS</span>
+    </h1>
+
+    <div class="gf__buttons">
+      <a
+        id="startBtn"
+        class="pixel-btn pixel-btn--start"
+        href="{{ url_for('login') }}"
+        data-sound="{{ url_for('static', filename='audio/dragon-studio-deep-sea-growl-401721.mp3') }}"
+      >START</a>
+
+      <a
+        id="classementBtn"
+        class="pixel-btn pixel-btn--rank"
+        href="{{ url_for('classement') }}"
+        data-sound="{{ url_for('static', filename='audio/dragon-studio-deep-sea-growl-401721.mp3') }}"
+      >CLASSEMENT</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/homeScreen.js') }}"></script>
+{% endblock %}
