@@ -25,10 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(() => {
         setTimeout(() => {
           window.location.href = targetUrl;
-        }, 1500);
+        }, 2000);
       })
       .catch((err) => {
-        console.error(" Audio bloqué / erreur:", err);
+        console.error("Audio bloqué / erreur:", err);
         // Si son bloqué, on redirige quand même
         window.location.href = targetUrl;
       });

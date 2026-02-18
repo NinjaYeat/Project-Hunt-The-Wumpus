@@ -16,14 +16,20 @@
             <form id="gamerLogin">
                 <label for="pseudo">Pseudo :</label>
                 <input type="text" id="pseudo" name="pseudo" placeholder="Veuillez saisir votre pseudo !" required>
+                <span id="pseudoSpan"></span>
                 
                 <label for="password">Mot de passe :</label>
                 <input type="password" id="password" name="password" placeholder="Veuillez saisir votre mot de passe" required>
-                
+                <span id="passwordSpan"></span>
+
                 <button type="submit">Créer le compte</button>
             </form>
             <a href="{{ url_for('home') }}" class="back-link">← Retour</a>
         </div>
     </div>
+    {%  block js %}
+    <script src="{{ url_for('static', filename='js/login.js')}}"></script>
+    {% endblock %}
+
 </body>
 </html>
