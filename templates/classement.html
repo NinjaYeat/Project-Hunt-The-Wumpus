@@ -1,16 +1,75 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Classement - Wumpus</title>
+{% extends "base.html" %}
 
+{% block title %}Classement - Hunt The Wumpus{% endblock %}
+{% block body_class %}screen-classement{% endblock %}
 
-</head>
-<body style="background-color:black; color:white; text-align:center;">
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/classement.css') }}">
+<link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='img/logo/icon Hunt The Wumpus.jpg') }}">
+{% endblock %}
 
-    <h1>PAGE CLASSEMENT </h1>
-    <p>formulaire</p>
+{% block content %}
+<div class="rank">
+  <div class="rank_vignette"></div>
 
-    <a href="{{ url_for('classement') }}">Retour</a>
-</body>
-</html>
+  <a class="rank_settings" href="{{ url_for('settings') }}" aria-label="Settings">
+    <img src="{{ url_for('static', filename='img/ui/gear.png') }}" alt="Settings">
+    <span>SETTINGS</span>
+  </a>
+
+  <div class="rank_content">
+    <h1 class="rank_title">HALL OF FAME</h1>
+    <h2 class="rank_subtitle">TOP 3 PLAYERS</h2>
+
+    <div class="cards">
+      <article class="card card-gold">
+        <div class="card_label">TOP 1</div>
+        <div class="card_frame">
+          <div class="card_avatar">
+            <img src="{{ url_for('static', filename='img/ui/avatar_gold.png') }}" alt="Gold avatar">
+          </div>
+          <div class="card_name">{{ top_players[0].name if top_players|length > 0 else "Player1" }}</div>
+          <div class="card_wins">
+            <span class="card_wins-nb">{{ top_players[0].wins if top_players|length > 0 else 0 }}</span>
+            <span class="card_wins-txt">GAMES WON</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-silver">
+        <div class="card_label">TOP 2</div>
+        <div class="card_frame">
+          <div class="card_avatar">
+            <img src="{{ url_for('static', filename='img/ui/avatar_silver.png') }}" alt="Silver avatar">
+          </div>
+          <div class="card_name">{{ top_players[1].name if top_players|length > 1 else "Player2" }}</div>
+          <div class="card_wins">
+            <span class="card_wins-nb">{{ top_players[1].wins if top_players|length > 1 else 0 }}</span>
+            <span class="card_wins-txt">GAMES WON</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-bronze">
+        <div class="card_label">TOP 3</div>
+        <div class="card_frame">
+          <div class="card_avatar">
+            <img src="{{ url_for('static', filename='img/ui/avatar_bronze.png') }}" alt="Bronze avatar">
+          </div>
+          <div class="card_name">{{ top_players[2].name if top_players|length > 2 else "Player3" }}</div>
+          <div class="card_wins">
+            <span class="card_wins-nb">{{ top_players[2].wins if top_players|length > 2 else 0 }}</span>
+            <span class="card_wins-txt">GAMES WON</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <a class="rank_back" href="{{ url_for('home') }}">BACK</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/classement.js') }}"></script>
+{% endblock %}
