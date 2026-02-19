@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -7,8 +7,17 @@ app = Flask(__name__)
 def home():
     return render_template("homeScreen.html")
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        pseudo = request.form.get("pseudo")
+        password = request.form.get("password")
+
+        print("Pseudo :", pseudo)
+        print("Password :", password)
+
+        return redirect(url_for("home"))
+
     return render_template("login.html")
 
 @app.route("/classement")

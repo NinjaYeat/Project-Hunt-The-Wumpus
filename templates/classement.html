@@ -28,23 +28,22 @@
           <div class="card_avatar">
             <img src="{{ url_for('static', filename='img/ui/avatar_gold.png') }}" alt="Gold avatar">
           </div>
-          <div class="card_name">{{ top_players[0].name if top_players|length > 0 else "Player1" }}</div>
+          <div class="card_name">{{ top_players[0].name if top_players|length > 0 else "Nora" }}</div>
           <div class="card_wins">
-            <span class="card_wins-nb">{{ top_players[0].wins if top_players|length > 0 else 0 }}</span>
+            <span class="card_wins-nb">{{ top_players[0].wins if top_players|length > 0 else 10000 }}</span>
             <span class="card_wins-txt">GAMES WON</span>
           </div>
         </div>
       </article>
-
       <article class="card card-silver">
         <div class="card_label">TOP 2</div>
         <div class="card_frame">
           <div class="card_avatar">
             <img src="{{ url_for('static', filename='img/ui/avatar_silver.png') }}" alt="Silver avatar">
           </div>
-          <div class="card_name">{{ top_players[1].name if top_players|length > 1 else "Player2" }}</div>
+          <div class="card_name">{{ top_players[1].name if top_players|length > 1 else "Yanis" }}</div>
           <div class="card_wins">
-            <span class="card_wins-nb">{{ top_players[1].wins if top_players|length > 1 else 0 }}</span>
+            <span class="card_wins-nb">{{ top_players[1].wins if top_players|length > 1 else 1000 }}</span>
             <span class="card_wins-txt">GAMES WON</span>
           </div>
         </div>
@@ -56,9 +55,9 @@
           <div class="card_avatar">
             <img src="{{ url_for('static', filename='img/ui/avatar_bronze.png') }}" alt="Bronze avatar">
           </div>
-          <div class="card_name">{{ top_players[2].name if top_players|length > 2 else "Player3" }}</div>
+          <div class="card_name">{{ top_players[2].name if top_players|length > 2 else "Amine" }}</div>
           <div class="card_wins">
-            <span class="card_wins-nb">{{ top_players[2].wins if top_players|length > 2 else 0 }}</span>
+            <span class="card_wins-nb">{{ top_players[2].wins if top_players|length > 2 else 999 }}</span>
             <span class="card_wins-txt">GAMES WON</span>
           </div>
         </div>
