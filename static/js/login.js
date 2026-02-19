@@ -1,7 +1,7 @@
     let regexPseudo = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/;
     let regexPassword = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/; 
 
-    const form = document.getElementById("gamerLogin"); 
+    const form = document.getElementById("gameLogin"); 
     form.addEventListener("submit", function(event) {
         if (!validateForm()) {
         event.preventDefault();
