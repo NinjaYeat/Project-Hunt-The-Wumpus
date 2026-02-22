@@ -48,7 +48,7 @@ body, html {
     color: #fff;
     font-family: 'Press Start 2P', cursive;
     font-size: 8px;
-    box-sizing: border-box; /* 🔥 corrige le débordement */
+    box-sizing: border-box;
 }
 
 .login-container button {
@@ -82,7 +82,7 @@ body, html {
 /* ===== Popup règles ===== */
 .field-wrapper {
     position: relative;
-    width: 100%; /* 🔥 corrige le positionnement du popup */
+    width: 100%; 
 }
 
 .rules-popup {
