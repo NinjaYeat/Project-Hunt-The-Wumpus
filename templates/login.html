@@ -15,13 +15,32 @@
         <h1>Création de compte</h1>
         <form id="gameLogin" method="POST" action="{{ url_for('login') }}">
             <label for="pseudo">Pseudo :</label>
-            <input type="text" id="pseudo" name="pseudo" placeholder="Veuillez saisir votre pseudo !" required>
+            <div class="field-wrapper">
+                <input type="text" id="pseudo" name="pseudo" placeholder="Veuillez saisir votre pseudo !" required>
+                <div class="rules-popup" id="pseudoRules">
+                    <p class="rules-title">Règles du pseudo:</p>
+                    <ul>
+                        <li id="rule-pseudo-length">Entre 5 et 10 caractères</li>
+                        <li id="rule-pseudo-chars">Lettres et chiffres uniquement</li>
+                        <li id="rule-pseudo-upper">Maximum 3 majuscules</li>
+                    </ul>
+                </div>
+            </div>
             <span id="pseudoSpan"></span>
             
             <label for="password">Mot de passe :</label>
-            <input type="password" id="password" name="password" placeholder="Veuillez saisir votre mot de passe" required>
+            <div class="field-wrapper">
+                <input type="password" id="password" name="password" placeholder="Veuillez saisir votre mot de passe" required>
+                <div class="rules-popup" id="passwordRules">
+                    <p class="rules-title">Règles du mot de passe :</p>
+                    <ul>
+                        <li id="rule-pwd-upper">Commence par 1 majuscule</li>
+                        <li id="rule-pwd-lower">7 à 12 minuscules ensuite</li>
+                        <li id="rule-pwd-digits">Finit par 2 chiffres</li>
+                    </ul>
+                </div>
+            </div>
             <span id="passwordSpan"></span>
-
             <button type="submit">Créer le compte</button>
         </form>
         <a href="{{ url_for('home') }}" class="back-link">← Retour</a>
