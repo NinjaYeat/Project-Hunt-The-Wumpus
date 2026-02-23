@@ -16,7 +16,7 @@ body, html {
 }
 
 .login-container {
-    background-color: rgba(0, 0, 0, 0.7); 
+    background-color: rgba(0, 0, 0, 0.7);
     padding: 40px 30px;
     border: 3px solid #fff;
     border-radius: 8px;
@@ -48,6 +48,7 @@ body, html {
     color: #fff;
     font-family: 'Press Start 2P', cursive;
     font-size: 8px;
+    box-sizing: border-box;
 }
 
 .login-container button {
@@ -78,9 +79,66 @@ body, html {
     text-decoration: underline;
 }
 
-/* ===== Media Queries pour Responsive ===== */
+/* ===== Popup règles ===== */
+.field-wrapper {
+    position: relative;
+    width: 100%;
+}
 
-/* Tablettes */
+.rules-popup {
+    display: none;
+    position: absolute;
+    left: calc(100% + 14px);
+    top: 0;
+    width: 220px;
+    background: rgba(10, 20, 35, 0.96);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    border-radius: 10px;
+    padding: 12px 16px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    line-height: 2;
+    color: #cfd6e3;
+    box-sizing: border-box;
+}
+
+.rules-popup.visible {
+    display: block;
+}
+
+.rules-title {
+    margin: 0 0 8px 0;
+    color: #0ff;
+    font-size: 8px;
+}
+
+.rules-popup ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rules-popup li {
+    margin-bottom: 6px;
+    color: #ff6b6b;
+}
+
+.rules-popup li::before {
+    content: "❌ ";
+}
+
+.rules-popup li.valid {
+    color: #6bffb8;
+}
+
+.rules-popup li.valid::before {
+    content: "✅ ";
+}
+
+/* ===== Media Queries ===== */
 @media (max-width: 768px) {
     .login-container {
         padding: 30px 20px;
@@ -96,9 +154,14 @@ body, html {
     .back-link {
         font-size: 7px;
     }
+
+    .rules-popup {
+        left: 0;
+        top: calc(100% + 8px);
+        width: 100%;
+    }
 }
 
-/* Mobiles */
 @media (max-width: 480px) {
     .login-container {
         padding: 20px 15px;
@@ -118,4 +181,10 @@ body, html {
     .login-container button {
         padding: 8px 15px;
     }
+}
+.flash{
+    margin: 10px 0 16px 0;
+    color: #ff2f5b;
+    font-size: 8px;
+    line-height: 1.4;
 }

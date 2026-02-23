@@ -1,10 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Game Menu - Hunt The Wumpus{% endblock %}
+{% block body_class %}screen-menu{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+<link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='img/logo/icon Hunt The Wumpus.jpg') }}">
+{% endblock %}
+
+{% block content %}
+<div class="menu">
+
+  <a class="menu_settings" href="{{ url_for('settings') }}">
+    <img src="{{ url_for('static', filename='img/ui/gear.png') }}" alt="settings">
+  </a>
+
+  <h1 class="menu_title">GAME MENU</h1>
+
+  <form method="POST" action="{{ url_for('menu') }}" class="menu_form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="levels">
+      <input type="radio" id="lvl1" name="difficulty" value="easy" checked>
+      <label for="lvl1" class="level_btn level1">EASY</label>
+
+      <input type="radio" id="lvl2" name="difficulty" value="medium">
+      <label for="lvl2" class="level_btn level2">MEDIUM</label>
+
+      <input type="radio" id="lvl3" name="difficulty" value="hard">
+      <label for="lvl3" class="level_btn level3">HARD</label>
+    </div>
+
+    <div class="options">
+
+      <div class="option_group">
+        <p>Mode:</p>
+
+        <input type="radio" id="normal" name="mode" value="normal" checked>
+        <label for="normal" class="option_btn blue">NORMAL</label>
+
+        <input type="radio" id="express" name="mode" value="express">
+        <label for="express" class="option_btn purple">EXPRESS</label>
+      </div>
+
+      <div class="option_group">
+        <p>Vision:</p>
+
+        <input type="radio" id="vision_normal" name="vision" value="normal" checked>
+        <label for="vision_normal" class="option_btn blue">NORMAL</label>
+
+        <input type="radio" id="blind" name="vision" value="blind">
+        <label for="blind" class="option_btn purple">BLIND</label>
+      </div>
+
+    </div>
+
+    <button type="submit" class="start_btn">START GAME</button>
+  </form>
+
+  <a href="{{ url_for('home') }}" class="back_btn">BACK</a>
+
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+{% endblock %}
