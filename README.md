@@ -12,7 +12,7 @@ Certaines cases contiennent un puits mortel, tandis qu'une autre abrite le Wumpu
 
 Planifiez vos mouvements avec soin, restez vigilant, et surtout… amusez-vous !
 
-Ce projet a été réalisé par NinjaYeat (Amine Iseborghts) et Naiataria (Nora Lfarh).
+Ce projet a été réalisé par NinjaYeat (Amine Isenborghts) et Naiataria (Nora Lfarh).
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -30,4 +30,4 @@ Some tiles contain deadly pits, while another hides the Wumpus itself. If you ge
 
 Plan your moves carefully, stay alert, and most importantly… have fun!
 
-This project was developed by NinjaYeat (Amine Iseborghts) and Naiataria (Nora Lfarh).
+This project was developed by NinjaYeat (Amine Isenborghts) and Naiataria (Nora Lfarh).
