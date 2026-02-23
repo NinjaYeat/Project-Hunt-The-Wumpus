@@ -1,7 +1,11 @@
     let regexPseudo = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/;
+<<<<<<< HEAD
     let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/; 
+=======
+    let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/;
+>>>>>>> d95a03e996bd77778baeb9783be608dd5597b94f
 
-    const form = document.getElementById("gameLogin"); 
+    const form = document.getElementById("gameLogin");
     form.addEventListener("submit", function(event) {
         if (!validateForm()) {
         event.preventDefault();
@@ -9,34 +13,39 @@
     });
 
     function validateForm(){
-        let isValid = true; 
-        const pseudo = document.getElementById("pseudo"); 
-        const password = document.getElementById("password"); 
-        const pseudoSpan = document.getElementById("pseudoSpan"); 
-        const passwordSpan = document.getElementById("passwordSpan"); 
+        let isValid = true;
+        const pseudo = document.getElementById("pseudo");
+        const password = document.getElementById("password");
+        const pseudoSpan = document.getElementById("pseudoSpan");
+        const passwordSpan = document.getElementById("passwordSpan");
 
         const pseudoValue = pseudo.value.trim();
         if(!regexPseudo.test(pseudoValue)){
-            pseudoSpan.textContent = "Veuillez entre un pseudo valide !"; 
-            pseudoSpan.style.color = "red"; 
-            isValid = false; 
+            pseudoSpan.textContent = "Veuillez entrer un pseudo valide !";
+            pseudoSpan.style.color = "red";
+            isValid = false;
         }
         else {
-            pseudoSpan.textContent =""; 
-        }
-    
-        const passwordValue = password.value.trim(); 
-        if(!regexPassword.test(passwordValue)){
-            passwordSpan.textContent = "Veuillez saisir un mot de passe valide !"; 
-            passwordSpan.style.color = "red"; 
-            isValid = false; 
-        }
-        else{
-            passwordSpan.textContent =""; 
+            pseudoSpan.textContent ="";
         }
 
+<<<<<<< HEAD
         return isValid; 
     }   
+=======
+        const passwordValue = password.value.trim();
+        if(!regexPassword.test(passwordValue)){
+            passwordSpan.textContent = "Veuillez saisir un mot de passe valide !";
+            passwordSpan.style.color = "red";
+            isValid = false;
+        }
+        else{
+            passwordSpan.textContent ="";
+        }
+
+        return isValid;
+    }
+>>>>>>> d95a03e996bd77778baeb9783be608dd5597b94f
 
 // ===== POPUP RÈGLES =====
 const regexPseudoLength = /^.{5,10}$/;

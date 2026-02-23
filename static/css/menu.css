@@ -1,0 +1,218 @@
+@font-face{
+  font-family:"Pixel";
+  src:url("../font/PressStart2P.ttf") format("truetype");
+}
+
+.screen-menu{
+  background:url("../img/ui/Menu.png") no-repeat center center;
+  background-size:cover;
+  min-height:100vh;
+  font-family:"Pixel", monospace;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+.menu{
+  text-align:center;
+  position:relative;
+  width:100%;
+  max-width:900px;
+  padding:18px 18px;
+}
+
+.menu_settings{
+  position:absolute;
+  top:12px;
+  right:14px;
+  z-index:5;
+}
+
+.menu_settings img{
+  width:42px;
+  image-rendering:pixelated;
+}
+
+.menu_title{
+  font-size:clamp(26px, 4.2vw, 40px);
+  color:#5ff4ff;
+  text-shadow:0 0 20px rgba(0,240,255,0.85);
+  margin:0 0 28px 0;
+}
+
+.menu_form{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.levels{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  margin:0 0 26px 0;
+}
+
+.levels input{
+  display:none;
+}
+
+.level_btn{
+  width:600px;
+  max-width:86vw;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:18px;
+  padding:0;
+  border:3px solid;
+  cursor:pointer;
+  transition:transform 0.18s, box-shadow 0.18s, filter 0.18s;
+  letter-spacing:1px;
+  background:rgba(0,0,0,0.20);
+  backdrop-filter: blur(2px);
+}
+
+.level1,
+.level2,
+.level3{
+  color:#00f0ff;
+  border-color:#00f0ff;
+}
+
+.level2,
+.level3{
+  color:#b85fff;
+  border-color:#b85fff;
+}
+
+.levels input:checked + label{
+  box-shadow:0 0 18px currentColor;
+  transform:scale(1.02);
+  filter:brightness(1.05);
+}
+
+.options{
+  width:min(720px, 92vw);
+  display:flex;
+  justify-content:center;
+  gap:clamp(26px, 6vw, 70px);
+  margin:0 0 26px 0;
+}
+
+.option_group{
+  text-align:center;
+}
+
+.option_group p{
+  margin:0 0 10px 0;
+  font-size:clamp(10px, 1.6vw, 14px);
+  opacity:0.95;
+}
+
+.option_group input{
+  display:none;
+}
+
+.option_btn{
+  width:min(240px, 38vw);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:10px;
+  padding:10px 14px;
+  border:2px solid;
+  cursor:pointer;
+  font-size:clamp(11px, 1.8vw, 14px);
+  background:rgba(0,0,0,0.20);
+  backdrop-filter: blur(2px);
+  transition:transform 0.18s, box-shadow 0.18s, filter 0.18s;
+}
+
+.blue{
+  border-color:#00f0ff;
+  color:#00f0ff;
+}
+
+.purple{
+  border-color:#b85fff;
+  color:#b85fff;
+}
+
+.option_group input:checked + label{
+  box-shadow:0 0 14px currentColor;
+  transform:scale(1.02);
+  filter:brightness(1.05);
+}
+
+.start_btn{
+  font-family:"Pixel", monospace;
+  padding:16px 56px;
+  font-size:clamp(15px, 2.5vw, 20px);
+  letter-spacing:1px;
+
+  background:linear-gradient(180deg, rgba(255,110,90,0.65) 0%, rgba(180,35,25,0.65) 100%);
+  border:3px solid rgba(255,160,140,0.75);
+  color:#ffe9df;
+
+  cursor:pointer;
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.45),
+    0 0 18px rgba(255,90,70,0.40);
+
+  text-shadow:
+    2px 2px 0 rgba(0,0,0,0.65),
+    0 0 10px rgba(255,120,90,0.40);
+
+  transition:transform 0.18s, filter 0.18s, box-shadow 0.18s;
+  margin-top:0;
+}
+
+.start_btn:hover{
+  transform:scale(1.03);
+  filter:brightness(1.07);
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.45),
+    0 0 22px rgba(255,120,90,0.50);
+}
+
+.start_btn:active{
+  transform:scale(0.99);
+  filter:brightness(0.98);
+}
+
+.back_btn{
+  position:absolute;
+  left:12px;
+  bottom:-8px;
+  padding:10px 26px;
+  border:2px solid rgba(184,95,255,0.95);
+  color:#b85fff;
+  text-decoration:none;
+  font-size:clamp(11px, 1.8vw, 14px);
+  background:rgba(0,0,0,0.25);
+  backdrop-filter: blur(2px);
+  transition:transform 0.16s, filter 0.16s, opacity 0.16s;
+  opacity:0.95;
+}
+
+.back_btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.07);
+  opacity:1;
+}
+
+@media (max-height: 720px){
+  .menu_title{ margin-bottom:18px; }
+  .menu_form{ gap:16px; }
+  .levels{ gap:14px; margin-bottom:20px; }
+  .level_btn{ height:56px; font-size:16px; }
+  .options{ gap:24px; margin-bottom:20px; }
+  .start_btn{ padding:14px 50px; }
+  .back_btn{ left:10px; bottom:-10px; }
+}

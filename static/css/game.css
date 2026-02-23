@@ -1,0 +1,109 @@
+@font-face{
+  font-family:"Pixel";
+  src:url("../font/PressStart2P.ttf") format("truetype");
+  font-weight:normal;
+  font-style:normal;
+}
+
+.screen-game{
+  min-height:100vh;
+  background:#05060a;
+  color:#fff;
+  font-family:"Pixel", monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:18px;
+}
+
+.game{
+  width:min(980px, 96vw);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.game_top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.game_info{
+  font-size:10px;
+  line-height:1.7;
+  opacity:0.92;
+}
+
+.game_back{
+  text-decoration:none;
+  font-size:10px;
+  padding:10px 14px;
+  border:2px solid rgba(0,240,255,0.7);
+  color:#00f0ff;
+  background:rgba(0,0,0,0.35);
+}
+
+.board{
+  border-collapse:collapse;
+  margin:0 auto;
+}
+
+.cell{
+  width:58px;
+  height:58px;
+  border:2px solid rgba(255,255,255,0.12);
+  padding:0;
+  text-align:center;
+  vertical-align:middle;
+}
+
+.cell_hidden{
+  background:rgba(0,0,0,0.55);
+}
+
+.cell_seen{
+  background:rgba(40,90,120,0.25);
+}
+
+.cell_sprite{
+  font-size:16px;
+  color:#ffeecc;
+  text-shadow:2px 2px 0 #000;
+}
+
+@media (max-width:700px){
+  .cell{ width:44px; height:44px; }
+  .game_info, .game_back{ font-size:9px; }
+}
+
+.game_actions{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.game_btn{
+  font-family:"Pixel", monospace;
+  padding:10px 14px;
+  border:2px solid rgba(255,255,255,0.35);
+  background:rgba(0,0,0,0.35);
+  color:#fff;
+  cursor:pointer;
+}
+
+.game_btn:hover{ filter:brightness(1.1); }
+
+.move_pad{
+  margin:14px 0 10px;
+  display:flex;
+  justify-content:center;
+}
+
+.move_form .row{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin:8px 0;
+}
