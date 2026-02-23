@@ -13,6 +13,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_conn
 from wumpus_map import new_game_state, move_player, cell_is_visible
 
+from psycopg.rows import dict_row
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change-me-now")
 
@@ -237,58 +239,87 @@ def move():
         return redirect(url_for("menu"))
 
     direction = request.form.get("dir", "")
-    dx, dy = 0, 0
-    if direction == "N":
-        dy = -1
-    elif direction == "S":
-        dy = 1
-    elif direction == "W":
-        dx = -1
-    elif direction == "E":
-        dx = 1
-    else:
-        return redirect(url_for("game"))
-
-    w = state["w"]
-    h = state["h"]
-    px = state["player"]["x"]
-    py = state["player"]["y"]
-
-    nx = px + dx
-    ny = py + dy
-
-    if nx < 0 or nx >= w or ny < 0 or ny >= h:
-        flash("Impossible d'aller hors de la carte.")
-        return redirect(url_for("game"))
-
-    state["player"]["x"] = nx
-    state["player"]["y"] = ny
-    state["grid"][ny][nx]["seen"] = True
-
+    state = move_player(state, direction)
     session["game_state"] = state
+
+    if state.get("game_over"):
+        res = state.get("result")
+        if res == "win":
+            flash("Bravo ! Tu as trouvé l'or. C'est gagné !!!")
+        elif res == "dead_wumpus":
+            flash("Tu es tombé sur le Wumpus. Perdu")
+        elif res == "dead_slime":
+            flash("Tu es tombé dans le slime. Perdu")
+
     return redirect(url_for("game"))
+@app.route("/finish_game", methods=["POST"])
+def finish_game():
+    if not current_user_id():
+        return redirect(url_for("login"))
+
+    if not _check_csrf():
+        flash("Requête invalide (CSRF). Réessaie.")
+        return redirect(url_for("game"))
+
+    state = session.get("game_state")
+    if not state or not state.get("game_over"):
+        flash("Partie non terminée.")
+        return redirect(url_for("game"))
+
+    result = state.get("result")
+    if result not in ("win", "dead_wumpus", "dead_slime"):
+        flash("Résultat invalide.")
+        return redirect(url_for("game"))
+
+    user_id = session["user_id"]
+
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                if result == "win":
+                    cur.execute("UPDATE users SET wins = wins + 1 WHERE id = %s;", (user_id,))
+                elif result == "dead_wumpus":
+                    cur.execute("UPDATE users SET died_wumpus = died_wumpus + 1 WHERE id = %s;", (user_id,))
+                elif result == "dead_slime":
+                    cur.execute("UPDATE users SET died_slime = died_slime + 1 WHERE id = %s;", (user_id,))
+
+        session.pop("game_state", None)
+
+    except Exception:
+        app.logger.exception("Erreur finish_game")
+        flash("Erreur serveur lors de l'enregistrement du résultat.")
+        return redirect(url_for("game"))
+
+    return redirect(url_for("classement"))
 
 @app.route("/classement")
 def classement():
     if not current_user_id():
         return redirect(url_for("login"))
 
+    slots = [
+        {"username": "Nora", "wins": 0},
+        {"username": "Yanis", "wins": 0},
+        {"username": "Amine", "wins": 0},
+    ]
+
     try:
         with get_conn() as conn:
-            with conn.cursor() as cur:
+            with conn.cursor(row_factory=dict_row) as cur:
                 cur.execute("""
                     SELECT username, wins
                     FROM users
                     ORDER BY wins DESC, username ASC
                     LIMIT 3;
                 """)
-                top_players = cur.fetchall()
+                rows = cur.fetchall()
+        for i, r in enumerate(rows[:3]):
+            slots[i] = r
+
     except Exception:
         app.logger.exception("Erreur classement")
-        top_players = []
 
-    return render_template("classement.html", top_players=top_players)
-
+    return render_template("classement.html", slots=slots)
 
 @app.route("/settings")
 def settings():

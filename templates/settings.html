@@ -9,14 +9,20 @@
 
 {% block content %}
 <div id="settings">
-  <h1>Paramètres</h1>
 
+  <!--C'est le bouton fermer je lui ai rajouté un élément cliquable-->
+  <button id="closeBtn" type="button" aria-label="Fermer">x</button>
+
+  <h1>Paramètres</h1>
+  <!--c'est les paramètres qui vont géré le volume du jeu (music.js)-->
   <h2>Volume</h2>
   <div id="volume">
-    <button id="playMusic" type="button">Play music</button>
-    <button id="pauseMusic" type="button">Pause music</button>
+    <button id="playMusic" type="button">▶ Play music</button>
+    <button id="pauseMusic" type="button">⏸ Pause music</button>
 
-    <label for="musicVolume">Volume music</label>
+    <label for="musicVolume">Volume music
+      <span id="musicVolumeDisplay">50%</span>
+    </label>
     <input
       type="range"
       id="musicVolume"
@@ -27,10 +33,16 @@
   </div>
 
   <h2>Affichage</h2>
-  <label for="brightness">Luminosité</label>
-  <input type="range" id="brightness" min="50" max="150" value="100" />
-
+  <!--c'est ce qui va géré l'affichage (luminosité)-->
+  <div id="displayBlock">
+    <label for="brightness">Luminosité
+      <span id="brightnessDisplay">100%</span>
+    </label>
+    <input type="range" id="brightness" min="50" max="150" value="100" />
+  </div>
+  
   <button id="saveBtn" type="button">Sauvegarder</button>
+  
 </div>
 {% endblock %}
 
