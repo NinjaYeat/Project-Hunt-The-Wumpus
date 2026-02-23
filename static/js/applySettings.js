@@ -1,6 +1,6 @@
 // Applique les settings sauvegardés dès le chargement de chaque page
 
-// ── Luminosité via overlay (évite les conflits CSS avec body/filter) ──
+// Luminosité via overlay (évite les conflits CSS avec body/filter) 
 const savedBrightness = localStorage.getItem("brightness");
 if (savedBrightness !== null) {
     const val = parseInt(savedBrightness); // 50 à 150
@@ -20,7 +20,7 @@ if (savedBrightness !== null) {
     document.body.appendChild(overlay);
 }
 
-// ── Volume musique ────────────────────────────────────────────
+// Volume musique 
 const savedVolume = localStorage.getItem("musicVolume");
 if (savedVolume !== null && window.music) {
     window.music.volume = savedVolume / 100;
