@@ -1,9 +1,5 @@
     let regexPseudo = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/;
-<<<<<<< HEAD
     let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/; 
-=======
-    let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/;
->>>>>>> d95a03e996bd77778baeb9783be608dd5597b94f
 
     const form = document.getElementById("gameLogin");
     form.addEventListener("submit", function(event) {
@@ -29,10 +25,6 @@
             pseudoSpan.textContent ="";
         }
 
-<<<<<<< HEAD
-        return isValid; 
-    }   
-=======
         const passwordValue = password.value.trim();
         if(!regexPassword.test(passwordValue)){
             passwordSpan.textContent = "Veuillez saisir un mot de passe valide !";
@@ -45,7 +37,6 @@
 
         return isValid;
     }
->>>>>>> d95a03e996bd77778baeb9783be608dd5597b94f
 
 // ===== POPUP RÈGLES =====
 const regexPseudoLength = /^.{5,10}$/;
