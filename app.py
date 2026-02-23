@@ -1,7 +1,11 @@
 #! /usr/bin/env python3
 #! Amine Isenborghts et Nora Lfarh
+
 import os
 import secrets
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -68,8 +72,8 @@ def register():
             flash("Le pseudo et le mot de passe ne peuvent pas être vides.")
             return redirect(url_for("register"))
 
-        if len(username) < 3 or len(username) > 20:
-            flash("Le pseudo doit faire entre 3 et 20 caractères.")
+        if len(username) < 5 or len(username) > 10:
+            flash("Le pseudo doit etre entre 5 et 10 caractères.")
             return redirect(url_for("register"))
 
         if len(password) < 6:
@@ -266,17 +270,18 @@ def move():
 
 @app.route("/classement")
 def classement():
+    if not current_user_id():
+        return redirect(url_for("login"))
+
     try:
         with get_conn() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    """
+                cur.execute("""
                     SELECT username, wins
                     FROM users
                     ORDER BY wins DESC, username ASC
                     LIMIT 3;
-                    """
-                )
+                """)
                 top_players = cur.fetchall()
     except Exception:
         app.logger.exception("Erreur classement")
@@ -287,8 +292,9 @@ def classement():
 
 @app.route("/settings")
 def settings():
+    if not current_user_id():
+        return redirect(url_for("login"))
     return render_template("settings.html")
-
 
 if __name__ == "__main__":
     app.run(debug=True)
