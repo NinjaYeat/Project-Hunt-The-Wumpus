@@ -18,14 +18,16 @@
       <p class="flash">{{ m }}</p>
     {% endfor %}
 
-    <form id="gameLogin" method="POST" action="{{ url_for('register') }}">
+    <form id="gameRegister" method="POST" action="{{ url_for('register') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <label for="pseudo">Pseudo :</label>
       <div class="field-wrapper">
-        <input type="text" id="pseudo" name="pseudo" placeholder="Veuillez saisir votre pseudo !" required>
+        <input type="text" id="pseudo" name="pseudo"
+               placeholder="Veuillez saisir votre pseudo !" required>
+
         <div class="rules-popup" id="pseudoRules">
-          <p class="rules-title">Règles du pseudo:</p>
+          <p class="rules-title">Règles du pseudo :</p>
           <ul>
             <li id="rule-pseudo-length">Entre 5 et 10 caractères</li>
             <li id="rule-pseudo-chars">Lettres et chiffres uniquement</li>
@@ -37,7 +39,9 @@
 
       <label for="password">Mot de passe :</label>
       <div class="field-wrapper">
-        <input type="password" id="password" name="password" placeholder="Veuillez saisir votre mot de passe" required>
+        <input type="password" id="password" name="password"
+               placeholder="Veuillez saisir votre mot de passe" required>
+
         <div class="rules-popup" id="passwordRules">
           <p class="rules-title">Règles du mot de passe :</p>
           <ul>

@@ -1,51 +1,49 @@
-    let regexPseudo = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/;
-<<<<<<< HEAD
-    let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/; 
-=======
-    let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/;
->>>>>>> d95a03e996bd77778baeb9783be608dd5597b94f
+let regexPseudo = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/;
+let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/;
 
-    const form = document.getElementById("gameLogin");
+
+const form = document.getElementById("gameLogin") || document.getElementById("gameRegister");
+if (form) {
     form.addEventListener("submit", function(event) {
         if (!validateForm()) {
-        event.preventDefault();
+            event.preventDefault();
         }
     });
+}
 
-    function validateForm(){
-        let isValid = true;
-        const pseudo = document.getElementById("pseudo");
-        const password = document.getElementById("password");
-        const pseudoSpan = document.getElementById("pseudoSpan");
-        const passwordSpan = document.getElementById("passwordSpan");
+function validateForm() {
+    let isValid = true;
+    const pseudo = document.getElementById("pseudo");
+    const password = document.getElementById("password");
+    const pseudoSpan = document.getElementById("pseudoSpan");
+    const passwordSpan = document.getElementById("passwordSpan");
 
-        const pseudoValue = pseudo.value.trim();
-        if(!regexPseudo.test(pseudoValue)){
+    if (!pseudo || !password) return true;
+
+    const pseudoValue = pseudo.value.trim();
+    if (!regexPseudo.test(pseudoValue)) {
+        if (pseudoSpan) {
             pseudoSpan.textContent = "Veuillez entrer un pseudo valide !";
             pseudoSpan.style.color = "red";
-            isValid = false;
         }
-        else {
-            pseudoSpan.textContent ="";
-        }
+        isValid = false;
+    } else {
+        if (pseudoSpan) pseudoSpan.textContent = "";
+    }
 
-<<<<<<< HEAD
-        return isValid; 
-    }   
-=======
-        const passwordValue = password.value.trim();
-        if(!regexPassword.test(passwordValue)){
+    const passwordValue = password.value.trim();
+    if (!regexPassword.test(passwordValue)) {
+        if (passwordSpan) {
             passwordSpan.textContent = "Veuillez saisir un mot de passe valide !";
             passwordSpan.style.color = "red";
-            isValid = false;
         }
-        else{
-            passwordSpan.textContent ="";
-        }
-
-        return isValid;
+        isValid = false;
+    } else {
+        if (passwordSpan) passwordSpan.textContent = "";
     }
->>>>>>> d95a03e996bd77778baeb9783be608dd5597b94f
+
+    return isValid;
+}
 
 // ===== POPUP RÈGLES =====
 const regexPseudoLength = /^.{5,10}$/;
@@ -81,12 +79,17 @@ rules.forEach(({ input, popup, checks }) => {
     const inputEl = document.getElementById(input);
     const popupEl = document.getElementById(popup);
 
+    // si sur login on ne crash pas
+    if (!inputEl || !popupEl) return;
+
     inputEl.addEventListener("focus", () => popupEl.classList.add("visible"));
     inputEl.addEventListener("blur",  () => popupEl.classList.remove("visible"));
     inputEl.addEventListener("input", () => {
         const v = inputEl.value;
-        checks.forEach(({ id, regex }) =>
-            document.getElementById(id).classList.toggle("valid", v.length > 0 && regex.test(v))
-        );
+        checks.forEach(({ id, regex }) => {
+            const li = document.getElementById(id);
+            if (!li) return;
+            li.classList.toggle("valid", v.length > 0 && regex.test(v));
+        });
     });
 });

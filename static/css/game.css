@@ -107,3 +107,23 @@
   gap:10px;
   margin:8px 0;
 }
+
+.percepts{
+  margin: 10px auto 15px;
+  font-size: 10px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.percepts span{
+  padding: 6px 10px;
+  border: 2px solid #555;
+  background: #1a1a1a;
+}
+
+.p_stench{ border-color: #ff6666; }
+.p_breeze{ border-color: #66ccff; }
+.p_glitter{ border-color: #ffcc00; }
+.p_none{ opacity: 0.6; }

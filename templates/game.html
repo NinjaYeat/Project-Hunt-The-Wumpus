@@ -12,37 +12,61 @@
 <div class="game">
 
   <div class="game_top">
-  <div class="game_info">
-    <div>PLAYER: {{ session.get("username","?") }}</div>
-    <div>DIFFICULTY: {{ state.difficulty }}</div>
-    <div>MODE: {{ state.mode }}</div>
-    <div>VISION: {{ state.vision }}</div>
+    <div class="game_info">
+      <div>PLAYER: {{ session.get("username","?") }}</div>
+      <div>DIFFICULTY: {{ state.difficulty }}</div>
+      <div>MODE: {{ state.mode }}</div>
+      <div>VISION: {{ state.vision }}</div>
+    </div>
+
+    <div class="game_actions">
+      <form method="POST" action="{{ url_for('new_game') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="game_btn">NEW</button>
+      </form>
+
+      <a class="game_back" href="{{ url_for('menu') }}">BACK</a>
+    </div>
   </div>
 
-  <div class="game_actions">
-    <form method="POST" action="{{ url_for('new_game') }}">
+  {# Messages #}
+  {% for m in get_flashed_messages() %}
+    <p class="flash">{{ m }}</p>
+  {% endfor %}
+
+  {# Percepts (STENCH / BREEZE / GLITTER) #}
+  {% if state.percepts %}
+    <div class="percepts">
+      {% if "stench" in state.percepts %}<span class="p_stench">STENCH</span>{% endif %}
+      {% if "breeze" in state.percepts %}<span class="p_breeze">BREEZE</span>{% endif %}
+      {% if "glitter" in state.percepts %}<span class="p_glitter">GLITTER</span>{% endif %}
+    </div>
+  {% else %}
+    <div class="percepts"><span class="p_none">...</span></div>
+  {% endif %}
+
+  {# Fin de partie => enregistrer #}
+  {% if state.game_over %}
+    <form method="POST" action="{{ url_for('finish_game') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="game_btn">NEW</button>
+      <button type="submit" class="game_btn">ENREGISTRER & CLASSEMENT</button>
     </form>
+  {% endif %}
 
-    <a class="game_back" href="{{ url_for('menu') }}">BACK</a>
+  <div class="move_pad">
+    <form method="POST" action="{{ url_for('move') }}" class="move_form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="row">
+        <button name="dir" value="N" class="game_btn" {% if state.game_over %}disabled{% endif %}>N</button>
+      </div>
+      <div class="row">
+        <button name="dir" value="W" class="game_btn" {% if state.game_over %}disabled{% endif %}>W</button>
+        <button name="dir" value="S" class="game_btn" {% if state.game_over %}disabled{% endif %}>S</button>
+        <button name="dir" value="E" class="game_btn" {% if state.game_over %}disabled{% endif %}>E</button>
+      </div>
+    </form>
   </div>
-</div>
-
-<div class="move_pad">
-  <form method="POST" action="{{ url_for('move') }}" class="move_form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-    <div class="row">
-      <button name="dir" value="N" class="game_btn">N</button>
-    </div>
-    <div class="row">
-      <button name="dir" value="W" class="game_btn">W</button>
-      <button name="dir" value="S" class="game_btn">S</button>
-      <button name="dir" value="E" class="game_btn">E</button>
-    </div>
-  </form>
-</div>
 
   <table class="board" aria-label="Wumpus board">
     <tbody>
