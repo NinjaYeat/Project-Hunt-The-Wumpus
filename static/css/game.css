@@ -127,3 +127,48 @@
 .p_breeze{ border-color: #66ccff; }
 .p_glitter{ border-color: #ffcc00; }
 .p_none{ opacity: 0.6; }
+
+/* ===================== SPRITES ===================== */
+
+/* Taille commune à tous les sprites */
+.cell_sprite {
+  width: 48px;
+  height: 48px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0 auto;
+}
+
+/* Fond des cellules visitées = salle de base */
+.cell_seen {
+  background-image: url("../img/game/roombase.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* --- Entités --- */
+.sprite_player  { background-image: url("../img/game/player.png"); }
+.sprite_wumpus  { background-image: url("../img/game/wumpus.png"); }
+.sprite_bat     { background-image: url("../img/game/bat.png"); }
+.sprite_slime   { background-image: url("../img/game/roomslime.png"); }
+
+/* --- Salles spéciales --- */
+.sprite_blood   { background-image: url("../img/game/roomblood.png"); }
+.sprite_nasty   { background-image: url("../img/game/roomnasty.png"); }
+.sprite_pit     { background-image: url("../img/game/roompit.png"); }
+
+/* --- Couloirs (halls) --- */
+.sprite_hall_ne   { background-image: url("../img/game/hallne.png"); }
+.sprite_hall_nw   { background-image: url("../img/game/hallnw.png"); }
+.sprite_hall_se   { background-image: url("../img/game/hallse.png"); }
+.sprite_hall_sw   { background-image: url("../img/game/hallsw.png"); }
+.sprite_hall_nesw { background-image: url("../img/game/hallnesw.png"); }
+.sprite_hall_nwse { background-image: url("../img/game/hallnwse.png"); }
+
+/* --- Directions du player --- */
+.sprite_player_n { background-image: url("../img/game/playern.png"); }
+.sprite_player_e { background-image: url("../img/game/playere.png"); }
+.sprite_player_w { background-image: url("../img/game/playerw.png"); }
+/* player.png = direction sud (par défaut) */
