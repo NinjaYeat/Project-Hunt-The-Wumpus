@@ -2,7 +2,7 @@ let regexPseudo = /^(?=[^A-Z]*(?:[A-Z][^A-Z]*){0,3}$)[a-zA-Z0-9]{5,10}$/;
 let regexPassword = /^[A-Z][a-z]{7,12}\d{2}$/;
 
 
-const form = document.getElementById("gameLogin") || document.getElementById("gameRegister");
+let form = document.getElementById("gameLogin") || document.getElementById("gameRegister");
 if (form) {
     form.addEventListener("submit", function(event) {
         if (!validateForm()) {
@@ -13,14 +13,14 @@ if (form) {
 
 function validateForm() {
     let isValid = true;
-    const pseudo = document.getElementById("pseudo");
-    const password = document.getElementById("password");
-    const pseudoSpan = document.getElementById("pseudoSpan");
-    const passwordSpan = document.getElementById("passwordSpan");
+    let pseudo = document.getElementById("pseudo");
+    let password = document.getElementById("password");
+    let pseudoSpan = document.getElementById("pseudoSpan");
+    let passwordSpan = document.getElementById("passwordSpan");
 
     if (!pseudo || !password) return true;
 
-    const pseudoValue = pseudo.value.trim();
+    let pseudoValue = pseudo.value.trim();
     if (!regexPseudo.test(pseudoValue)) {
         if (pseudoSpan) {
             pseudoSpan.textContent = "Veuillez entrer un pseudo valide !";
@@ -31,7 +31,7 @@ function validateForm() {
         if (pseudoSpan) pseudoSpan.textContent = "";
     }
 
-    const passwordValue = password.value.trim();
+    let passwordValue = password.value.trim();
     if (!regexPassword.test(passwordValue)) {
         if (passwordSpan) {
             passwordSpan.textContent = "Veuillez saisir un mot de passe valide !";
@@ -46,15 +46,15 @@ function validateForm() {
 }
 
 // ===== POPUP RÈGLES =====
-const regexPseudoLength = /^.{5,10}$/;
-const regexPseudoChars  = /^[a-zA-Z0-9]+$/;
-const regexPseudoUpper  = /^[^A-Z]*([A-Z][^A-Z]*){0,3}$/;
+let regexPseudoLength = /^.{5,10}$/;
+let regexPseudoChars  = /^[a-zA-Z0-9]+$/;
+let regexPseudoUpper  = /^[^A-Z]*([A-Z][^A-Z]*){0,3}$/;
 
-const regexPwdUpper  = /^[A-Z]/;
-const regexPwdLower  = /^[A-Z][a-z]{7,12}/;
-const regexPwdDigits = /^.+\d{2}$/;
+let regexPwdUpper  = /^[A-Z]/;
+let regexPwdLower  = /^[A-Z][a-z]{7,12}/;
+let regexPwdDigits = /^.+\d{2}$/;
 
-const rules = [
+let rules = [
     {
         input: "pseudo",
         popup: "pseudoRules",
@@ -76,8 +76,8 @@ const rules = [
 ];
 
 rules.forEach(({ input, popup, checks }) => {
-    const inputEl = document.getElementById(input);
-    const popupEl = document.getElementById(popup);
+    let inputEl = document.getElementById(input);
+    let popupEl = document.getElementById(popup);
 
     // si sur login on ne crash pas
     if (!inputEl || !popupEl) return;
@@ -85,9 +85,9 @@ rules.forEach(({ input, popup, checks }) => {
     inputEl.addEventListener("focus", () => popupEl.classList.add("visible"));
     inputEl.addEventListener("blur",  () => popupEl.classList.remove("visible"));
     inputEl.addEventListener("input", () => {
-        const v = inputEl.value;
+        let v = inputEl.value;
         checks.forEach(({ id, regex }) => {
-            const li = document.getElementById(id);
+            let li = document.getElementById(id);
             if (!li) return;
             li.classList.toggle("valid", v.length > 0 && regex.test(v));
         });

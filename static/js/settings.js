@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // Éléments 
-    const musicVolumeSlider = document.getElementById("musicVolume");
-    const musicVolumeDisplay = document.getElementById("musicVolumeDisplay");
-    const playMusicBtn = document.getElementById("playMusic");
-    const pauseMusicBtn = document.getElementById("pauseMusic");
+    let musicVolumeSlider = document.getElementById("musicVolume");
+    let musicVolumeDisplay = document.getElementById("musicVolumeDisplay");
+    let playMusicBtn = document.getElementById("playMusic");
+    let pauseMusicBtn = document.getElementById("pauseMusic");
 
-    const brightnessSlider = document.getElementById("brightness");
-    const brightnessDisplay = document.getElementById("brightnessDisplay");
+    let brightnessSlider = document.getElementById("brightness");
+    let brightnessDisplay = document.getElementById("brightnessDisplay");
 
-    const saveBtn = document.getElementById("saveBtn");
-    const closeBtn = document.getElementById("closeBtn");
+    let saveBtn = document.getElementById("saveBtn");
+    let closeBtn = document.getElementById("closeBtn");
 
     // Fonction luminosité via overlay 
     function applyBrightness(val) {
@@ -32,8 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Charger les valeurs sauvegardées 
-    const savedVolume     = localStorage.getItem("musicVolume");
-    const savedBrightness = localStorage.getItem("brightness");
+    let savedVolume     = localStorage.getItem("musicVolume");
+    let savedBrightness = localStorage.getItem("brightness");
 
     if (savedVolume !== null) {
         musicVolumeSlider.value = savedVolume;

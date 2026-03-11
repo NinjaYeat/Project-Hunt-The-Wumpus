@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log(" homeScreen.js chargé");
 
-  const startBtn = document.getElementById("startBtn");
-  const classementBtn = document.getElementById("classementBtn");
+  let startBtn = document.getElementById("startBtn");
+  let classementBtn = document.getElementById("classementBtn");
 
   if (!startBtn || !classementBtn) {
     console.error(" startBtn ou classementBtn introuvable (IDs manquants dans le HTML)");
@@ -12,13 +12,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function playAndGo(e) {
     e.preventDefault();
 
-    const targetUrl = e.currentTarget.getAttribute("href");
-    const soundUrl = e.currentTarget.dataset.sound;
+    let targetUrl = e.currentTarget.getAttribute("href");
+    let soundUrl = e.currentTarget.dataset.sound;
 
     console.log(" targetUrl =", targetUrl);
     console.log(" soundUrl =", soundUrl);
 
-    const sound = new Audio(soundUrl);
+    let sound = new Audio(soundUrl);
     sound.currentTime = 0;
 
     sound.play()
