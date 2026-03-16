@@ -11,7 +11,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from db import get_conn
-from wumpus_map import new_game_state, move_player, cell_is_visible
+from wumpus_map import new_game_state, move_player, cell_is_visible, shoot_arrow, get_grid
 
 from psycopg.rows import dict_row
 
@@ -43,15 +43,15 @@ def _check_csrf():
 @app.context_processor
 def inject_csrf():
     _ensure_csrf_token()
-
     def csrf_token():
         return session.get("csrf_token", "")
-
     return {"csrf_token": csrf_token}
+
 
 @app.context_processor
 def inject_helpers():
     return {"cell_is_visible": cell_is_visible}
+
 
 @app.route("/")
 def home():
@@ -61,7 +61,6 @@ def home():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     _ensure_csrf_token()
-
     if request.method == "POST":
         if not _check_csrf():
             flash("Requête invalide (CSRF). Réessaie.")
@@ -73,17 +72,14 @@ def register():
         if not username or not password:
             flash("Le pseudo et le mot de passe ne peuvent pas être vides.")
             return redirect(url_for("register"))
-
         if len(username) < 5 or len(username) > 10:
             flash("Le pseudo doit etre entre 5 et 10 caractères.")
             return redirect(url_for("register"))
-
         if len(password) < 6:
             flash("Le mot de passe doit faire au moins 6 caractères.")
             return redirect(url_for("register"))
 
         password_hash = generate_password_hash(password)
-
         try:
             with get_conn() as conn:
                 with conn.cursor() as cur:
@@ -91,12 +87,10 @@ def register():
                     if cur.fetchone():
                         flash("Ce pseudo est déjà utilisé.")
                         return redirect(url_for("register"))
-
                     cur.execute(
                         "INSERT INTO users (username, password_hash) VALUES (%s, %s);",
                         (username, password_hash),
                     )
-
             flash("Compte créé. Connecte-toi maintenant.")
             return redirect(url_for("login"))
         except Exception:
@@ -110,7 +104,6 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     _ensure_csrf_token()
-
     if request.method == "POST":
         if not _check_csrf():
             flash("Requête invalide (CSRF). Réessaie.")
@@ -131,14 +124,12 @@ def login():
                         (username,),
                     )
                     row = cur.fetchone()
-
             if (not row) or (not check_password_hash(row["password_hash"], password)):
                 flash("Pseudo ou mot de passe incorrect.")
                 return redirect(url_for("login"))
-
             session.clear()
             _ensure_csrf_token()
-            session["user_id"] = row["id"]
+            session["user_id"]  = row["id"]
             session["username"] = row["username"]
             return redirect(url_for("menu"))
         except Exception:
@@ -159,17 +150,15 @@ def logout():
 def menu():
     if not current_user_id():
         return redirect(url_for("login"))
-
     _ensure_csrf_token()
-
     if request.method == "POST":
         if not _check_csrf():
             flash("Requête invalide (CSRF). Réessaie.")
             return redirect(url_for("menu"))
 
         difficulty = request.form.get("difficulty", "easy")
-        mode = request.form.get("mode", "normal")
-        vision = request.form.get("vision", "normal")
+        mode       = request.form.get("mode", "normal")
+        vision     = request.form.get("vision", "normal")
 
         if difficulty not in ("easy", "medium", "hard"):
             difficulty = "easy"
@@ -179,12 +168,11 @@ def menu():
             vision = "normal"
 
         session["difficulty"] = difficulty
-        session["mode"] = mode
-        session["vision"] = vision
+        session["mode"]       = mode
+        session["vision"]     = vision
 
         state = new_game_state(difficulty=difficulty, mode=mode, vision=vision)
         session["game_state"] = state
-
         return redirect(url_for("game"))
 
     return render_template("menu.html")
@@ -204,14 +192,16 @@ def game():
         )
         session["game_state"] = state
 
-    return render_template("game.html", state=state)
+    state_vue         = dict(state)
+    state_vue["grid"] = get_grid(state)
+
+    return render_template("game.html", state=state_vue)
 
 
 @app.route("/new_game", methods=["POST"])
 def new_game():
     if not current_user_id():
         return redirect(url_for("login"))
-
     if not _check_csrf():
         flash("Requête invalide (CSRF). Réessaie.")
         return redirect(url_for("menu"))
@@ -229,7 +219,6 @@ def new_game():
 def move():
     if not current_user_id():
         return redirect(url_for("login"))
-
     if not _check_csrf():
         flash("Requête invalide (CSRF). Réessaie.")
         return redirect(url_for("game"))
@@ -238,25 +227,34 @@ def move():
     if not state:
         return redirect(url_for("menu"))
 
-    direction = request.form.get("dir", "")
-    state = move_player(state, direction)
+    direction   = request.form.get("dir", "")
+    action_type = request.form.get("action_type", "move")
+
+    if action_type == "shoot":
+        state = shoot_arrow(state, direction)
+    else:
+        state = move_player(state, direction)
+
     session["game_state"] = state
 
     if state.get("game_over"):
         res = state.get("result")
         if res == "win":
-            flash("Bravo ! Tu as trouvé l'or. C'est gagné !!!")
+            flash("Bravo ! Tu as tué le Wumpus !")
+        elif res == "missed_wumpus":
+            flash("Raté... Tu t'es fait manger.")
         elif res == "dead_wumpus":
-            flash("Tu es tombé sur le Wumpus. Perdu")
+            flash("Tu es tombé sur le Wumpus. Perdu !")
         elif res == "dead_slime":
-            flash("Tu es tombé dans le slime. Perdu")
+            flash("Tu es tombé dans le slime. Perdu !")
 
     return redirect(url_for("game"))
+
+
 @app.route("/finish_game", methods=["POST"])
 def finish_game():
     if not current_user_id():
         return redirect(url_for("login"))
-
     if not _check_csrf():
         flash("Requête invalide (CSRF). Réessaie.")
         return redirect(url_for("game"))
@@ -267,24 +265,21 @@ def finish_game():
         return redirect(url_for("game"))
 
     result = state.get("result")
-    if result not in ("win", "dead_wumpus", "dead_slime"):
+    if result not in ("win", "dead_wumpus", "dead_slime", "missed_wumpus"):
         flash("Résultat invalide.")
         return redirect(url_for("game"))
 
     user_id = session["user_id"]
-
     try:
         with get_conn() as conn:
             with conn.cursor() as cur:
                 if result == "win":
                     cur.execute("UPDATE users SET wins = wins + 1 WHERE id = %s;", (user_id,))
-                elif result == "dead_wumpus":
+                elif result in ("dead_wumpus", "missed_wumpus"):
                     cur.execute("UPDATE users SET died_wumpus = died_wumpus + 1 WHERE id = %s;", (user_id,))
                 elif result == "dead_slime":
                     cur.execute("UPDATE users SET died_slime = died_slime + 1 WHERE id = %s;", (user_id,))
-
         session.pop("game_state", None)
-
     except Exception:
         app.logger.exception("Erreur finish_game")
         flash("Erreur serveur lors de l'enregistrement du résultat.")
@@ -292,17 +287,17 @@ def finish_game():
 
     return redirect(url_for("classement"))
 
+
 @app.route("/classement")
 def classement():
     if not current_user_id():
         return redirect(url_for("login"))
 
     slots = [
-        {"username": "Nora", "wins": 0},
+        {"username": "Nora",  "wins": 0},
         {"username": "Yanis", "wins": 0},
         {"username": "Amine", "wins": 0},
     ]
-
     try:
         with get_conn() as conn:
             with conn.cursor(row_factory=dict_row) as cur:
@@ -315,17 +310,18 @@ def classement():
                 rows = cur.fetchall()
         for i, r in enumerate(rows[:3]):
             slots[i] = r
-
     except Exception:
         app.logger.exception("Erreur classement")
 
     return render_template("classement.html", slots=slots)
+
 
 @app.route("/settings")
 def settings():
     if not current_user_id():
         return redirect(url_for("login"))
     return render_template("settings.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -18,108 +18,111 @@
       <div>MODE: {{ state.mode }}</div>
       <div>VISION: {{ state.vision }}</div>
     </div>
-
     <div class="game_actions">
       <form method="POST" action="{{ url_for('new_game') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="game_btn">NEW</button>
       </form>
-
       <a class="game_back" href="{{ url_for('menu') }}">BACK</a>
     </div>
   </div>
 
-  {# Messages flash #}
   {% for m in get_flashed_messages() %}
     <p class="flash">{{ m }}</p>
   {% endfor %}
 
-  {# Percepts #}
-  {% if state.percepts %}
-    <div class="percepts">
-      {% if "stench" in state.percepts %}<span class="p_stench">STENCH</span>{% endif %}
-      {% if "breeze" in state.percepts %}<span class="p_breeze">BREEZE</span>{% endif %}
-      {% if "glitter" in state.percepts %}<span class="p_glitter">GLITTER</span>{% endif %}
-    </div>
-  {% else %}
-    <div class="percepts"><span class="p_none">...</span></div>
-  {% endif %}
+  <div class="percepts">
+    {% if "stench" in state.percepts %}
+      <span class="p_stench">⚠ STENCH</span>
+    {% endif %}
+    {% if "breeze" in state.percepts %}
+      <span class="p_breeze">💨 BREEZE</span>
+    {% endif %}
+    {% if not state.percepts %}
+      <span class="p_none">...</span>
+    {% endif %}
+  </div>
 
-  {# Fin de partie #}
   {% if state.game_over %}
-    <div class="game_over">
-      {% if state.result == "dead_wumpus" %}
-        <p class="flash flash_bad">YOU WERE EATEN BY THE WUMPUS!</p>
-      {% elif state.result == "dead_slime" %}
-        <p class="flash flash_bad">YOU FELL INTO THE SLIME PIT!</p>
-      {% elif state.result == "win" %}
-        <p class="flash flash_good">YOU SLAYED THE WUMPUS!</p>
-      {% endif %}
-    </div>
-
-    <form method="POST" action="{{ url_for('finish_game') }}">
+    <form method="POST" action="{{ url_for('finish_game') }}" class="finish_form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="game_btn">ENREGISTRER & CLASSEMENT</button>
+      <button type="submit" class="game_btn">ENREGISTRER &amp; CLASSEMENT</button>
     </form>
   {% endif %}
 
-  {# Pad directionnel #}
   <div class="move_pad">
     <form method="POST" action="{{ url_for('move') }}" class="move_form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="row">
-        <button name="dir" value="N" class="game_btn" {% if state.game_over %}disabled{% endif %}>▲ N</button>
+
+      <div class="action_type_selector">
+        <label>
+          <input type="radio" name="action_type" value="move" checked>
+          🚶 Mouvement
+        </label>
+        <label>
+          <input type="radio" name="action_type" value="shoot">
+          🏹 Tirer Flèche
+        </label>
       </div>
-      <div class="row">
-        <button name="dir" value="W" class="game_btn" {% if state.game_over %}disabled{% endif %}>◀ W</button>
-        <button name="dir" value="S" class="game_btn" {% if state.game_over %}disabled{% endif %}>▼ S</button>
-        <button name="dir" value="E" class="game_btn" {% if state.game_over %}disabled{% endif %}>E ▶</button>
+
+      {% set py = state.player.y %}
+      {% set px = state.player.x %}
+      {% set cj = state.grid[py][px] %}
+
+      <div class="dpad_row">
+        <button name="dir" value="N" class="game_btn"
+          {% if state.game_over or not cj.open_N %}disabled{% endif %}>▲ N</button>
       </div>
+      <div class="dpad_row">
+        <button name="dir" value="W" class="game_btn"
+          {% if state.game_over or not cj.open_W %}disabled{% endif %}>◀ W</button>
+        <button name="dir" value="S" class="game_btn"
+          {% if state.game_over or not cj.open_S %}disabled{% endif %}>▼ S</button>
+        <button name="dir" value="E" class="game_btn"
+          {% if state.game_over or not cj.open_E %}disabled{% endif %}>E ▶</button>
+      </div>
+
     </form>
   </div>
 
-  {# Grille #}
-  <table class="board" aria-label="Wumpus board">
+  <table class="board">
     <tbody>
       {% for y in range(state.h) %}
       <tr>
         {% for x in range(state.w) %}
 
-          {% set visible = cell_is_visible(state, x, y) %}
+          {% if state.vision == "blind" %}
+            {% set visible = (state.player.x == x and state.player.y == y) %}
+          {% else %}
+            {% set visible = true %}
+          {% endif %}
+
           {% set is_player = (state.player.x == x and state.player.y == y) %}
           {% set cell = state.grid[y][x] %}
-          {% set last_dir = state.get("last_dir", "S") if state is mapping else "S" %}
 
-          <td class="cell {% if visible %}cell_seen{% else %}cell_hidden{% endif %}">
-            {% if visible %}
-
+          {% if not visible %}
+            <td class="cell cell_hidden"></td>
+          {% else %}
+            <td class="cell bg_{{ cell.bg_img }}">
               {% if is_player %}
-                {# Sprite du joueur selon la direction #}
-                {% if last_dir == "N" %}
+                {% if state.last_dir == "N" %}
                   <div class="cell_sprite sprite_player_n"></div>
-                {% elif last_dir == "E" %}
+                {% elif state.last_dir == "E" %}
                   <div class="cell_sprite sprite_player_e"></div>
-                {% elif last_dir == "W" %}
+                {% elif state.last_dir == "W" %}
                   <div class="cell_sprite sprite_player_w"></div>
                 {% else %}
-                  <div class="cell_sprite sprite_player"></div>
+                  <div class="cell_sprite sprite_player_s"></div>
                 {% endif %}
-
               {% elif cell.type == "wumpus" %}
                 <div class="cell_sprite sprite_wumpus"></div>
-
               {% elif cell.type == "slime" %}
                 <div class="cell_sprite sprite_slime"></div>
-
               {% elif cell.type == "bat" %}
                 <div class="cell_sprite sprite_bat"></div>
-
-              {% else %}
-                {# Cellule vide visitée - pas de sprite par-dessus le fond #}
               {% endif %}
-
-            {% endif %}
-          </td>
+            </td>
+          {% endif %}
 
         {% endfor %}
       </tr>
