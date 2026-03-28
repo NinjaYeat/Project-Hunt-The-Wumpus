@@ -105,16 +105,44 @@ def _generer(nb_corridors):
         c = random.randint(0, COLS - 1)
         if tiles[r][c] != 0:
             continue
-        if any(tiles[_wrap(r+dr,c+dc)[0]][_wrap(r+dr,c+dc)[1]] != 0
-               for dr, dc, _ in DIRS):
-            continue
+
         random.shuffle(types)
         for t in types:
+            backup = [row[:] for row in tiles]
             tiles[r][c] = t
-            if _tout_connecte(tiles):
-                placed += 1
+            ok = True
+            nouveaux = 1
+
+            for dr, dc, l in DIRS:
+                if l not in TILE_DIRS[t]:
+                    continue
+                nr, nc = _wrap(r + dr, c + dc)
+                if tiles[nr][nc] != 0:
+                    opp = OPP[l]
+                    if opp not in TILE_DIRS[tiles[nr][nc]]:
+                        ok = False
+                        break
+                    continue
+                opp = OPP[l]
+                compatibles = [tt for tt in types if opp in TILE_DIRS[tt]]
+                random.shuffle(compatibles)
+                placed_voisin = False
+                for tt in compatibles:
+                    tiles[nr][nc] = tt
+                    if _tout_connecte(tiles):
+                        placed_voisin = True
+                        nouveaux += 1
+                        break
+                    tiles[nr][nc] = 0
+                if not placed_voisin:
+                    ok = False
+                    break
+
+            if ok and _tout_connecte(tiles):
+                placed += nouveaux
                 break
-            tiles[r][c] = 0
+            for i in range(ROWS):
+                tiles[i] = backup[i]
 
     return tiles
 
@@ -160,7 +188,8 @@ def _placer_entites(tiles, nb_puits, nb_chauves):
     for pr, pc in ent["puits"]:
         for _, _, l in DIRS:
             dest = _move_destination(tiles, pr, pc, l)
-            ent["mousse"].add(dest)
+            if list(dest) not in ent["puits"]:
+                ent["mousse"].add(dest)             #j'ai retiré une ligne de code qui n'était pas forcèment utile c'est pour géré la mousse autour du puit correctement
 
     wr, wc = ent["wumpus"]
     for r in range(ROWS):
@@ -263,7 +292,6 @@ def new_game_state(difficulty="easy", mode="normal", vision="normal"):
         "player":         {"y": jr, "x": jc},
         "last_dir":       "S",
         "revele":         [[True] * COLS for _ in range(ROWS)],
-        "bat_visits":     {},
         "game_over":      False,
         "result":         None,
         "percepts":       [],
@@ -331,13 +359,6 @@ def _check_bat(state, r, c):
     if [r, c] not in state["chauves_souris"]:
         return state
 
-    key = "%d,%d" % (r, c)
-    v   = state["bat_visits"]
-    v[key] = v.get(key, 0) + 1
-
-    if v[key] < 2:
-        return state
-
     tiles     = state["tiles"]
     interdits = [state["wumpus"]] + state["puits"]
     libre     = [
@@ -345,7 +366,7 @@ def _check_bat(state, r, c):
         if tiles[row][col] == 0
         and [row, col] not in interdits
         and [row, col] != [r, c]
-    ]
+    ]                                            #ici aussi j'ai retiré la condition if i < 2 car ça va directement laisser une chance au gars appart si il faut en laissé une puis qu'il se fasse tp  a toi de voir nono du binks !
 
     if not libre:
         return state
@@ -359,9 +380,6 @@ def _check_bat(state, r, c):
     if autres:
         i = state["chauves_souris"].index([r, c])
         state["chauves_souris"][i] = random.choice(autres)
-        v.pop(key, None)
-
-    state["bat_visits"] = v
 
     if dest in state["puits"]:
         state["game_over"] = True

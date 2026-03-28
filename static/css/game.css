@@ -146,19 +146,24 @@
   background-image: none !important;
 }
 
+/* Sprites de cavernes */
 .bg_roombase  { background-image: url("../img/game/roombase.png"); }
 .bg_roomblood { background-image: url("../img/game/roomblood.png"); }
 .bg_roomslime { background-image: url("../img/game/roomslime.png"); }
 .bg_roompit   { background-image: url("../img/game/roompit.png"); }
 .bg_roomnasty { background-image: url("../img/game/roomnasty.png"); }
 
-.bg_hallne { background-image: url("../img/game/hallne.png"); }
-.bg_hallnw { background-image: url("../img/game/hallnw.png"); }
-.bg_hallse { background-image: url("../img/game/hallse.png"); }
-.bg_hallsw { background-image: url("../img/game/hallsw.png"); }
-.bg_hallns { background-image: url("../img/game/hallnwse.png"); }
-.bg_hallew { background-image: url("../img/game/hallnwse.png"); }
+/* Sprites de couloirs courbés */
+.bg_hallne    { background-image: url("../img/game/hallne.png"); }
+.bg_hallnw    { background-image: url("../img/game/hallnw.png"); }
+.bg_hallse    { background-image: url("../img/game/hallse.png"); }
+.bg_hallsw    { background-image: url("../img/game/hallsw.png"); }
 
+/* Sprites S utilisés pour les couloirs droits */
+.bg_hallnesw  { background-image: url("../img/game/hallnesw.png"); }
+.bg_hallnwse  { background-image: url("../img/game/hallnwse.png"); }
+
+/* Sprites des entités */
 .cell_sprite {
   position: absolute;
   top: 0;
