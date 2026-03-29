@@ -21,12 +21,12 @@ DIR_MAP = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
 OPP     = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
 TILE_DIRS = {
-    1: frozenset(["n", "e"]),
-    2: frozenset(["n", "w"]),
-    3: frozenset(["s", "e"]),
-    4: frozenset(["s", "w"]),
-    5: frozenset(["n", "s"]),
-    6: frozenset(["e", "w"]),
+    1: frozenset(["n", "e"]),  # hallne
+    2: frozenset(["n", "w"]),  # hallnw
+    3: frozenset(["s", "e"]),  # hallse
+    4: frozenset(["s", "w"]),  # hallsw
+    5: frozenset(["n", "s"]),  # vertical
+    6: frozenset(["e", "w"]),  # horizontal
 }
 
 TILE_NAME = {
@@ -35,8 +35,8 @@ TILE_NAME = {
     2: "hallnw",
     3: "hallse",
     4: "hallsw",
-    5: "hallns",
-    6: "hallew",
+    5: "hallnwse",
+    6: "hallnesw",
 }
 
 
@@ -93,56 +93,83 @@ def _tout_connecte(tiles):
     return len(_bfs_cavernes(tiles, cavernes[0])) == len(cavernes)
 
 
-def _generer(nb_corridors):
+def _generer_grille_pleine():
+    """
+    Remplit toute la grille de couloirs raccordés case par case.
+    - Bord haut   → pas d'ouverture Nord
+    - Bord bas    → pas d'ouverture Sud
+    - Bord gauche → pas d'ouverture Ouest
+    - Bord droit  → pas d'ouverture Est
+    - Retourne None si une case n'a aucun type compatible
+    """
     tiles = [[0] * COLS for _ in range(ROWS)]
-    types = list(TILE_DIRS.keys())
 
-    placed = 0
-    tries  = 0
-    while placed < nb_corridors and tries < 10000:
-        tries += 1
-        r = random.randint(0, ROWS - 1)
-        c = random.randint(0, COLS - 1)
-        if tiles[r][c] != 0:
+    for r in range(ROWS):
+        for c in range(COLS):
+            # Contraintes Nord
+            if r > 0:
+                voisin_n     = tiles[r-1][c]
+                doit_avoir_n = "s" in TILE_DIRS.get(voisin_n, set())
+                interdit_n   = "s" not in TILE_DIRS.get(voisin_n, set())
+            else:
+                doit_avoir_n = False
+                interdit_n   = True  # Bord haut → pas d'ouverture Nord
+
+            # Contraintes Ouest
+            if c > 0:
+                voisin_w     = tiles[r][c-1]
+                doit_avoir_w = "e" in TILE_DIRS.get(voisin_w, set())
+                interdit_w   = "e" not in TILE_DIRS.get(voisin_w, set())
+            else:
+                doit_avoir_w = False
+                interdit_w   = True  # Bord gauche → pas d'ouverture Ouest
+
+            # Bord droit → pas d'ouverture Est
+            interdit_e = (c == COLS - 1)
+            # Bord bas → pas d'ouverture Sud
+            interdit_s = (r == ROWS - 1)
+
+            compatibles = []
+            for t, dirs in TILE_DIRS.items():
+                if doit_avoir_n and "n" not in dirs: continue
+                if doit_avoir_w and "w" not in dirs: continue
+                if interdit_n   and "n" in dirs:     continue
+                if interdit_w   and "w" in dirs:     continue
+                if interdit_e   and "e" in dirs:     continue
+                if interdit_s   and "s" in dirs:     continue
+                compatibles.append(t)
+
+            # Si pas de compatibles → grille invalide
+            if not compatibles:
+                return None
+
+            tiles[r][c] = random.choice(compatibles)
+
+    return tiles
+
+
+def _generer(nb_corridors):
+    """
+    1. Remplit toute la grille avec des couloirs bien raccordés
+    2. Choisit aléatoirement nb_cavernes cases qui deviennent des cavernes (0)
+    3. Vérifie que toutes les cavernes sont connectées
+    """
+    nb_cavernes = ROWS * COLS - nb_corridors
+
+    for _ in range(1000):
+        tiles = _generer_grille_pleine()
+        if tiles is None:
             continue
 
-        random.shuffle(types)
-        for t in types:
-            backup = [row[:] for row in tiles]
-            tiles[r][c] = t
-            ok = True
-            nouveaux = 1
+        toutes = [(r, c) for r in range(ROWS) for c in range(COLS)]
+        random.shuffle(toutes)
+        cavernes_choisies = toutes[:nb_cavernes]
 
-            for dr, dc, l in DIRS:
-                if l not in TILE_DIRS[t]:
-                    continue
-                nr, nc = _wrap(r + dr, c + dc)
-                if tiles[nr][nc] != 0:
-                    opp = OPP[l]
-                    if opp not in TILE_DIRS[tiles[nr][nc]]:
-                        ok = False
-                        break
-                    continue
-                opp = OPP[l]
-                compatibles = [tt for tt in types if opp in TILE_DIRS[tt]]
-                random.shuffle(compatibles)
-                placed_voisin = False
-                for tt in compatibles:
-                    tiles[nr][nc] = tt
-                    if _tout_connecte(tiles):
-                        placed_voisin = True
-                        nouveaux += 1
-                        break
-                    tiles[nr][nc] = 0
-                if not placed_voisin:
-                    ok = False
-                    break
+        for r, c in cavernes_choisies:
+            tiles[r][c] = 0
 
-            if ok and _tout_connecte(tiles):
-                placed += nouveaux
-                break
-            for i in range(ROWS):
-                tiles[i] = backup[i]
+        if _tout_connecte(tiles):
+            return tiles
 
     return tiles
 
@@ -185,12 +212,14 @@ def _placer_entites(tiles, nb_puits, nb_chauves):
     ent["puits"]   = [cavernes[idx + i] for i in range(nb_puits)]; idx += nb_puits
     ent["chauves"] = [cavernes[idx + i] for i in range(nb_chauves)]; idx += nb_chauves
 
+    # Mousse dans les cavernes adjacentes aux puits (jamais sur un puits)
     for pr, pc in ent["puits"]:
         for _, _, l in DIRS:
             dest = _move_destination(tiles, pr, pc, l)
             if list(dest) not in ent["puits"]:
-                ent["mousse"].add(dest)             #j'ai retiré une ligne de code qui n'était pas forcèment utile c'est pour géré la mousse autour du puit correctement
+                ent["mousse"].add(dest)
 
+    # Rouge dans les cavernes à distance <= 2 du wumpus
     wr, wc = ent["wumpus"]
     for r in range(ROWS):
         for c in range(COLS):
@@ -198,6 +227,7 @@ def _placer_entites(tiles, nb_puits, nb_chauves):
                 if _dist_cav(tiles, wr, wc, r, c) <= 2:
                     ent["rouge"].add((r, c))
 
+    # Joueur placé dans une caverne sûre (ni puits, ni wumpus, ni mousse)
     interdits = set(ent["puits"]) | {ent["wumpus"]} | ent["mousse"]
     for pos in cavernes[idx:]:
         if pos not in interdits:
@@ -210,7 +240,22 @@ def _placer_entites(tiles, nb_puits, nb_chauves):
 def _bg_img(tiles, r, c, puits_s, mousse_s, rouge_s):
     t = tiles[r][c]
     if t != 0:
+        # Vérifie si on forme un S avec le voisin de droite
+        if t == 1 and c + 1 < COLS:  # hallne + hallsw à droite → hallnesw
+            if tiles[r][c+1] == 4:
+                return "hallnesw"
+        if t == 2 and c + 1 < COLS:  # hallnw + hallse à droite → hallnwse
+            if tiles[r][c+1] == 3:
+                return "hallnwse"
+        # Vérifie si on est la case droite d'un S (on affiche rien de spécial)
+        if t == 4 and c - 1 >= 0:  # hallsw précédé de hallne
+            if tiles[r][c-1] == 1:
+                return "hallnesw"
+        if t == 3 and c - 1 >= 0:  # hallse précédé de hallnw
+            if tiles[r][c-1] == 2:
+                return "hallnwse"
         return TILE_NAME[t]
+
     pos = (r, c)
     if pos in puits_s:
         return "roomnasty" if pos in rouge_s else "roompit"
@@ -366,11 +411,12 @@ def _check_bat(state, r, c):
         if tiles[row][col] == 0
         and [row, col] not in interdits
         and [row, col] != [r, c]
-    ]                                            #ici aussi j'ai retiré la condition if i < 2 car ça va directement laisser une chance au gars appart si il faut en laissé une puis qu'il se fasse tp  a toi de voir nono du binks !
+    ]
 
     if not libre:
         return state
 
+    # Téléportation dès la 1ère visite
     dest = random.choice(libre)
     state["player"]["y"]              = dest[0]
     state["player"]["x"]              = dest[1]
