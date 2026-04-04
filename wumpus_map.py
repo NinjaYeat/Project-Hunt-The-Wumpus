@@ -94,14 +94,6 @@ def _tout_connecte(tiles):
 
 
 def _generer_grille_pleine():
-    """
-    Remplit toute la grille de couloirs raccordés case par case.
-    - Bord haut   → pas d'ouverture Nord
-    - Bord bas    → pas d'ouverture Sud
-    - Bord gauche → pas d'ouverture Ouest
-    - Bord droit  → pas d'ouverture Est
-    - Retourne None si une case n'a aucun type compatible
-    """
     tiles = [[0] * COLS for _ in range(ROWS)]
 
     for r in range(ROWS):
@@ -113,7 +105,7 @@ def _generer_grille_pleine():
                 interdit_n   = "s" not in TILE_DIRS.get(voisin_n, set())
             else:
                 doit_avoir_n = False
-                interdit_n   = True  # Bord haut → pas d'ouverture Nord
+                interdit_n   = True  # Bord haut pas d'ouverture Nord
 
             # Contraintes Ouest
             if c > 0:
@@ -122,11 +114,11 @@ def _generer_grille_pleine():
                 interdit_w   = "e" not in TILE_DIRS.get(voisin_w, set())
             else:
                 doit_avoir_w = False
-                interdit_w   = True  # Bord gauche → pas d'ouverture Ouest
+                interdit_w   = True  # Bord gauche pas d'ouverture Ouest
 
-            # Bord droit → pas d'ouverture Est
+            # Bord droit  pas d'ouverture Est
             interdit_e = (c == COLS - 1)
-            # Bord bas → pas d'ouverture Sud
+            # Bord bas  pas d'ouverture Sud
             interdit_s = (r == ROWS - 1)
 
             compatibles = []
@@ -139,7 +131,7 @@ def _generer_grille_pleine():
                 if interdit_s   and "s" in dirs:     continue
                 compatibles.append(t)
 
-            # Si pas de compatibles → grille invalide
+            # Si pas de compatibles grille invalide
             if not compatibles:
                 return None
 
@@ -149,11 +141,7 @@ def _generer_grille_pleine():
 
 
 def _generer(nb_corridors):
-    """
-    1. Remplit toute la grille avec des couloirs bien raccordés
-    2. Choisit aléatoirement nb_cavernes cases qui deviennent des cavernes (0)
-    3. Vérifie que toutes les cavernes sont connectées
-    """
+   
     nb_cavernes = ROWS * COLS - nb_corridors
 
     for _ in range(1000):
@@ -241,10 +229,10 @@ def _bg_img(tiles, r, c, puits_s, mousse_s, rouge_s):
     t = tiles[r][c]
     if t != 0:
         # Vérifie si on forme un S avec le voisin de droite
-        if t == 1 and c + 1 < COLS:  # hallne + hallsw à droite → hallnesw
+        if t == 1 and c + 1 < COLS:  # hallne + hallsw à droite hallnesw
             if tiles[r][c+1] == 4:
                 return "hallnesw"
-        if t == 2 and c + 1 < COLS:  # hallnw + hallse à droite → hallnwse
+        if t == 2 and c + 1 < COLS:  # hallnw + hallse à droite hallnwse
             if tiles[r][c+1] == 3:
                 return "hallnwse"
         # Vérifie si on est la case droite d'un S (on affiche rien de spécial)
