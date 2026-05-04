@@ -12,15 +12,15 @@ NB_WELL = 2 # Nombre puit
 
 # Nombres des cavernes, corridors et chauves-souris selon les niveau
 PARAMS = {
-    "easy":   {"nb_caverns": 16, "nb_corridors": 8,  "nb_bat": 1}, 
+    "easy": {"nb_caverns": 16, "nb_corridors": 8,  "nb_bat": 1}, 
     "medium": {"nb_caverns": 12, "nb_corridors": 14, "nb_bat": 2},
-    "hard":   {"nb_caverns": 8,  "nb_corridors": 20, "nb_bat": 2},
+    "hard": {"nb_caverns": 8,  "nb_corridors": 20, "nb_bat": 2},
 }
 
 # Tuples qui gère les directions selon les direction cardinales 
-DIRS    = [(-1, 0, "n"), (0, 1, "e"), (1, 0, "s"), (0, -1, "w")]
+DIRS = [(-1, 0, "n"), (0, 1, "e"), (1, 0, "s"), (0, -1, "w")]
 DIR_MAP = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
-OPP     = {"n": "s", "s": "n", "e": "w", "w": "e"}
+OPP = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
 # Type de tuile et on lui associe les directions ouvertes (frozenset est utilisé comme un set!)
 TILE_DIRS = {
@@ -102,22 +102,22 @@ def _generate_full_grid():
             if r > 0:
                 north_neighbor = tiles[r-1][c]
                 must_have_north = "s" in TILE_DIRS.get(north_neighbor, set())
-                forbid_north  = "s" not in TILE_DIRS.get(north_neighbor, set())
+                forbid_north = "s" not in TILE_DIRS.get(north_neighbor, set())
             else:
                 must_have_north = False
                 forbid_north = True  # Bord haut pas d'ouverture Nord
 
             # Contraintes Ouest
             if c > 0:
-                west_neighbor   = tiles[r][c-1]
-                must_have_west= "e" in TILE_DIRS.get(west_neighbor, set())
+                west_neighbor = tiles[r][c-1]
+                must_have_west = "e" in TILE_DIRS.get(west_neighbor, set())
                 forbid_west = "e" not in TILE_DIRS.get(west_neighbor, set())
             else:
                 must_have_west = False
-                forbid_west   = True  # Bord gauche pas d'ouverture Ouest
+                forbid_west = True  # Bord gauche pas d'ouverture Ouest
 
             # Bord droit  pas d'ouverture Est
-            forbid_east= (c == COLS - 1)
+            forbid_east = (c == COLS - 1)
             # Bord bas  pas d'ouverture Sud
             forbid_south = (r == ROWS - 1)
 
@@ -125,10 +125,10 @@ def _generate_full_grid():
             for t, dirs in TILE_DIRS.items():
                 if must_have_north and "n" not in dirs: continue
                 if must_have_west and "w" not in dirs: continue
-                if forbid_north   and "n" in dirs:     continue
-                if forbid_west  and "w" in dirs:     continue
-                if forbid_east   and "e" in dirs:     continue
-                if forbid_south   and "s" in dirs:     continue
+                if forbid_north   and "n" in dirs: continue
+                if forbid_west  and "w" in dirs: continue
+                if forbid_east   and "e" in dirs: continue
+                if forbid_south   and "s" in dirs: continue
                 compatibles.append(t)
 
             # Si pas de compatibles grille invalide
@@ -186,7 +186,7 @@ def _dist_cav(tiles, r1, c1, r2, c2):
     return float("inf")
 
 # Fonction qui place le joueur, le wumpus, les puits et les chauves-souris sur la grille
-def _place_entities(tiles, nb_puits, nb_chauves):
+def _place_entities(tiles, nb_well, nb_bat):
     cavernes = [(r, c) for r in range(ROWS) for c in range(COLS) if tiles[r][c] == 0]
     random.shuffle(cavernes)
     idx = 0
@@ -197,14 +197,14 @@ def _place_entities(tiles, nb_puits, nb_chauves):
     }
 
     ent["wumpus"]  = cavernes[idx]; idx += 1
-    ent["well"]   = [cavernes[idx + i] for i in range(nb_puits)]; idx += nb_puits
-    ent["bat"] = [cavernes[idx + i] for i in range(nb_chauves)]; idx += nb_chauves
+    ent["well"]   = [cavernes[idx + i] for i in range(nb_well)]; idx += nb_well
+    ent["bat"] = [cavernes[idx + i] for i in range(nb_bat)]; idx += nb_bat
 
     # Mousse dans les cavernes adjacentes aux puits (jamais sur un puits)
     for pr, pc in ent["well"]:
         for _, _, l in DIRS:
             dest = _move_destination(tiles, pr, pc, l)
-            if list(dest) not in ent["puits"]:
+            if list(dest) not in ent["well"]:
                 ent["foam"].add(dest)
 
     # Rouge dans les cavernes à distance <= 2 du wumpus
@@ -225,7 +225,7 @@ def _place_entities(tiles, nb_puits, nb_chauves):
     return ent
 
 # Fonction qui détermine le sprite à afficher pour une case selon son contenu et ses voisins
-def _bg_img(tiles, r, c, puits_s, mousse_s, rouge_s):
+def _bg_img(tiles, r, c, well_s, foam_s, red_s):
     t = tiles[r][c]
     if t != 0:
         # Vérifie si on forme un S avec le voisin de droite
@@ -245,32 +245,32 @@ def _bg_img(tiles, r, c, puits_s, mousse_s, rouge_s):
         return TILE_NAME[t]
 
     pos = (r, c)
-    if pos in puits_s:
-        return "roomnasty" if pos in rouge_s else "roompit"
-    if pos in mousse_s and pos in rouge_s:
+    if pos in well_s:
+        return "roomnasty" if pos in red_s else "roompit"
+    if pos in foam_s and pos in red_s:
         return "roomnasty"
-    if pos in mousse_s:
+    if pos in foam_s:
         return "roomslime"
-    if pos in rouge_s:
+    if pos in red_s:
         return "roomblood"
     return "roombase"
 
 # Fonction qui construit une grille exploitable pour l'affichage avec toutes les infos nécessaires 
-def _build_grid(tiles, wumpus_t, puits_s, chauves_s, mousse_s, rouge_s):
+def _build_grid(tiles, wumpus_t, well_s, bat_s, foam_s, red_s):
     grid = []
     for r in range(ROWS):
         row = []
         for c in range(COLS):
             pos = (r, c)
             t   = tiles[r][c]
-            if pos in puits_s:     ct = "slime"
-            elif pos == wumpus_t:  ct = "wumpus"
-            elif pos in chauves_s: ct = "bat"
-            elif t != 0:           ct = "corridor"
-            else:                  ct = "empty"
+            if pos in well_s: ct = "slime"
+            elif pos == wumpus_t: ct = "wumpus"
+            elif pos in bat_s: ct = "bat"
+            elif t != 0: ct = "corridor"
+            else: ct = "empty"
             row.append({
                 "type":   ct,
-                "bg_img": _bg_img(tiles, r, c, puits_s, mousse_s, rouge_s),
+                "bg_img": _bg_img(tiles, r, c, well_s, foam_s, red_s),
                 "open_N": _is_passable(tiles, r, c, "N"),
                 "open_S": _is_passable(tiles, r, c, "S"),
                 "open_E": _is_passable(tiles, r, c, "E"),
@@ -306,7 +306,7 @@ def new_game_state(difficulty="easy", mode="normal", vision="normal"):
     ent    = _place_entities(tiles, NB_WELL, p["nb_bat"])
     jr, jc = ent["player"]
 
-    map = [[CAVERN if tiles[r][c] == 0 else CORRIDOR for c in range(COLS)]
+    grid_map = [[CAVERN if tiles[r][c] == 0 else CORRIDOR for c in range(COLS)]
              for r in range(ROWS)]
 
     state = {
@@ -316,7 +316,7 @@ def new_game_state(difficulty="easy", mode="normal", vision="normal"):
         "mode": mode,
         "vision": vision,
         "tiles": tiles,
-        "map": map,
+        "map": grid_map,
         "wumpus": list(ent["wumpus"]),
         "well": [list(p) for p in ent["well"]],
         "bat": [list(b) for b in ent["bat"]],
@@ -337,7 +337,7 @@ def new_game_state(difficulty="easy", mode="normal", vision="normal"):
 def cell_is_visible(state, x, y):
     if state["vision"] == "blind":
         return state["player"]["x"] == x and state["player"]["y"] == y
-    return state["revele"][y][x]
+    return state["reveals"][y][x]
 
 # Fonction qui contrimé au déplacement du joueur et gère les collision et morts 
 def move_player(state, direction):
@@ -350,9 +350,9 @@ def move_player(state, direction):
 
     tiles  = state["tiles"]
     py, px = state["player"]["y"], state["player"]["x"]
-    tc     = tiles[py][px]
+    tc = tiles[py][px]
 
-    if tc != 0 and dl not in TILE_DIRS[tc]:
+    if tc != 0 and tc in TILE_DIRS and dl not in TILE_DIRS[tc]:
         return state
 
     ny, nx = _move_destination(tiles, py, px, dl)
@@ -393,35 +393,35 @@ def _check_bat(state, r, c):
         return state
 
     tiles = state["tiles"]
-    interdits = [state["wumpus"]] + state["well"]
-    libre = [
+    forbidden = [state["wumpus"]] + state["well"]
+    free = [
         [row, col] for row in range(ROWS) for col in range(COLS)
         if tiles[row][col] == 0
-        and [row, col] not in interdits
+        and [row, col] not in forbidden
         and [row, col] != [r, c]
     ]
 
-    if not libre:
+    if not free:
         return state
 
     # Téléportation dès la 1ère visite
-    dest = random.choice(libre)
+    dest = random.choice(free)
     state["player"]["y"] = dest[0]
     state["player"]["x"] = dest[1]
     state["reveals"][dest[0]][dest[1]] = True
 
-    autres = [p for p in libre if p != dest]
-    if autres:
+    other = [p for p in free if p != dest]
+    if other:
         i = state["bat"].index([r, c])
-        state["bat"][i] = random.choice(autres)
+        state["bat"][i] = random.choice(other)
 
     if dest in state["well"]:
         state["game_over"] = True
-        state["result"]    = "dead_slime"
+        state["result"] = "dead_slime"
         _reveal_all(state)
     elif dest == state["wumpus"]:
         state["game_over"] = True
-        state["result"]    = "dead_wumpus"
+        state["result"] = "dead_wumpus"
         _reveal_all(state)
 
     return state
