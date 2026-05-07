@@ -3,9 +3,8 @@
 import random
 from collections import deque
 
-ROWS = 6   # Ligne
-COLS = 8   # Colonne
-WALL = 0   # Mur
+ROWS = 6 # Ligne
+COLS = 8 # Colonne
 CAVERN = 1 # Caverne 
 CORRIDOR = 2 # Corridor
 NB_WELL = 2 # Nombre puit 
@@ -19,15 +18,26 @@ PARAMS = {
 
 # Tuples qui gère les directions selon les direction cardinales 
 DIRS = [(-1, 0, "n"), (0, 1, "e"), (1, 0, "s"), (0, -1, "w")]
-DIR_MAP = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
 OPP = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
-# Type de tuile et on lui associe les directions ouvertes (frozenset est utilisé comme un set!)
+# Ces types permettent de relier deux corridors incompatibles dans la même case.
 TILE_DIRS = {
-    1: frozenset(["n", "e"]),  # hallne
-    2: frozenset(["n", "w"]),  # hallnw
-    3: frozenset(["s", "e"]),  # hallse
-    4: frozenset(["s", "w"]),  # hallsw
+    1: frozenset(["n", "e"]), # hallne
+    2: frozenset(["n", "w"]), # hallnw
+    3: frozenset(["s", "e"]), # hallse
+    4: frozenset(["s", "w"]), # hallsw
+    5: frozenset(["n", "e", "s", "w"]), # hallne + hallsw
+    6: frozenset(["n", "e", "s", "w"]), # hallnw + hallse
+}
+
+# Entrée => sortie exacte pour chaque type (remplace le next() approximatif)
+EXIT_MAP = {
+    1: {"n": "e", "e": "n"},
+    2: {"n": "w", "w": "n"},
+    3: {"s": "e", "e": "s"},
+    4: {"s": "w", "w": "s"},
+    5: {"n": "e", "e": "n", "s": "w", "w": "s"},
+    6: {"n": "w", "w": "n", "s": "e", "e": "s"},
 }
 
 # Associe un identifiant de tuile à un nom (sprites)
@@ -37,7 +47,12 @@ TILE_NAME = {
     2: "hallnw",
     3: "hallse",
     4: "hallsw",
+    5: "hallnesw",   # sprite principal du type 5
+    6: "hallnwse",   # sprite principal du type 6
 }
+
+# Quand un corridor bloque le passage → upgrade vers le type combiné
+UPGRADE_MAP = {1: 5, 4: 5, 2: 6, 3: 6, 5: 5, 6: 6}
 
 # Fonction Wrap sert que si on dépasse les bords de la map tu reviens de l'autres côtés 
 def _wrap(r, c):
@@ -47,30 +62,42 @@ def _wrap(r, c):
 def _dir_vec(l):
     return next((dr, dc) for dr, dc, ll in DIRS if ll == l)
 
-# Fonction qui détermine où le personnage se déplace réellement applique aussi les fonctions précèdente 
+# Fonction qui détermine où le personnage se déplace réellement
 def _move_destination(tiles, py, px, dl):
-    dr, dc   = _dir_vec(dl)
-    nr, nc   = _wrap(py + dr, px + dc)
-    from_dir = OPP[dl]
+    dr, dc = _dir_vec(dl)
+    r, c = _wrap(py + dr, px + dc)
 
-    if tiles[nr][nc] == 0:
-        return nr, nc
+    # Si la case juste à côté est une caverne, on y va directement
+    if tiles[r][c] == 0:
+        return r, c
 
-    t = tiles[nr][nc]
-    if from_dir in TILE_DIRS[t]:
-        exit_l = next((l for l in TILE_DIRS[t] if l != from_dir), None)
-        if exit_l:
-            ddr, ddc = _dir_vec(exit_l)
-            dest = _wrap(nr + ddr, nc + ddc)
-            if tiles[dest[0]][dest[1]] == 0:
-                return dest
+    # Direction par laquelle on entre dans le corridor
+    entry_dir = OPP[dl]
+    seen = set()
 
-    r2, c2 = _wrap(nr + dr, nc + dc)
-    seen = {(nr, nc)}
-    while tiles[r2][c2] != 0 and (r2, c2) not in seen:
-        seen.add((r2, c2))
-        r2, c2 = _wrap(r2 + dr, c2 + dc)
-    return r2, c2
+    while tiles[r][c] != 0:
+        if (r, c, entry_dir) in seen:
+            return py, px
+
+        seen.add((r, c, entry_dir))
+
+        t = tiles[r][c]
+
+        # Si on essaie d'entrer par un côté fermé, le joueur ne bouge pas
+        if entry_dir not in EXIT_MAP[t]:
+            return py, px
+
+        # On ressort par la vraie sortie du corridor
+        exit_dir = EXIT_MAP[t][entry_dir]
+        dr, dc = _dir_vec(exit_dir)
+
+        nr, nc = _wrap(r + dr, c + dc)
+
+        # Pour le prochain corridor, on entre depuis le côté opposé
+        entry_dir = OPP[exit_dir]
+        r, c = nr, nc
+
+    return r, c
 
 # Fonction qui explore toute les cases accessbiles depuis le start du jeu (position de départ)
 def _bfs_caverns(tiles, start):
@@ -105,7 +132,7 @@ def _generate_full_grid():
                 forbid_north = "s" not in TILE_DIRS.get(north_neighbor, set())
             else:
                 must_have_north = False
-                forbid_north = True  # Bord haut pas d'ouverture Nord
+                forbid_north = True
 
             # Contraintes Ouest
             if c > 0:
@@ -114,24 +141,23 @@ def _generate_full_grid():
                 forbid_west = "e" not in TILE_DIRS.get(west_neighbor, set())
             else:
                 must_have_west = False
-                forbid_west = True  # Bord gauche pas d'ouverture Ouest
+                forbid_west = True
 
-            # Bord droit  pas d'ouverture Est
             forbid_east = (c == COLS - 1)
-            # Bord bas  pas d'ouverture Sud
             forbid_south = (r == ROWS - 1)
 
+            # Génération de base avec types 1-4 uniquement
             compatibles = []
-            for t, dirs in TILE_DIRS.items():
+            for t in [1, 2, 3, 4]:
+                dirs = TILE_DIRS[t]
                 if must_have_north and "n" not in dirs: continue
                 if must_have_west and "w" not in dirs: continue
-                if forbid_north   and "n" in dirs: continue
-                if forbid_west  and "w" in dirs: continue
-                if forbid_east   and "e" in dirs: continue
-                if forbid_south   and "s" in dirs: continue
+                if forbid_north and "n" in dirs: continue
+                if forbid_west and "w" in dirs: continue
+                if forbid_east and "e" in dirs: continue
+                if forbid_south and "s" in dirs: continue
                 compatibles.append(t)
 
-            # Si pas de compatibles grille invalide
             if not compatibles:
                 return None
 
@@ -139,9 +165,27 @@ def _generate_full_grid():
 
     return tiles
 
+# Répète jusqu'à ce qu'il n'y ait plus aucun blocage.
+def _fix_dead_ends(tiles):
+    changed = True
+    while changed:
+        changed = False
+        for r in range(ROWS):
+            for c in range(COLS):
+                for dr, dc, dl in DIRS:
+                    nr, nc = _wrap(r + dr, c + dc)
+                    t_voisin = tiles[nr][nc]
+                    if t_voisin == 0:
+                        continue
+                    entry_at_voisin = OPP[dl]
+                    if entry_at_voisin not in EXIT_MAP[t_voisin]:
+                        new_type = UPGRADE_MAP[t_voisin]
+                        if new_type != t_voisin:
+                            tiles[nr][nc] = new_type
+                            changed = True
+
 # Fonction qui gènére une grille jouables avec un nombres de corridors et cavernes connectées 
 def _generate(nb_corridors):
-   
     nb_cavernes = ROWS * COLS - nb_corridors
 
     for _ in range(1000):
@@ -155,6 +199,9 @@ def _generate(nb_corridors):
 
         for r, c in cavernes_choisies:
             tiles[r][c] = 0
+
+        #corriger les dead-ends avant de vérifier la connectivité
+        _fix_dead_ends(tiles)
 
         if _all_connected(tiles):
             return tiles
@@ -196,8 +243,8 @@ def _place_entities(tiles, nb_well, nb_bat):
         "player": None, "foam": set(), "red": set()
     }
 
-    ent["wumpus"]  = cavernes[idx]; idx += 1
-    ent["well"]   = [cavernes[idx + i] for i in range(nb_well)]; idx += nb_well
+    ent["wumpus"] = cavernes[idx]; idx += 1
+    ent["well"] = [cavernes[idx + i] for i in range(nb_well)]; idx += nb_well
     ent["bat"] = [cavernes[idx + i] for i in range(nb_bat)]; idx += nb_bat
 
     # Mousse dans les cavernes adjacentes aux puits (jamais sur un puits)
@@ -228,20 +275,6 @@ def _place_entities(tiles, nb_well, nb_bat):
 def _bg_img(tiles, r, c, well_s, foam_s, red_s):
     t = tiles[r][c]
     if t != 0:
-        # Vérifie si on forme un S avec le voisin de droite
-        if t == 1 and c + 1 < COLS:  # hallne + hallsw à droite hallnesw
-            if tiles[r][c+1] == 4:
-                return "hallnesw"
-        if t == 2 and c + 1 < COLS:  # hallnw + hallse à droite hallnwse
-            if tiles[r][c+1] == 3:
-                return "hallnwse"
-        # Vérifie si on est la case droite d'un S (on affiche rien de spécial)
-        if t == 4 and c - 1 >= 0:  # hallsw précédé de hallne
-            if tiles[r][c-1] == 1:
-                return "hallnesw"
-        if t == 3 and c - 1 >= 0:  # hallse précédé de hallnw
-            if tiles[r][c-1] == 2:
-                return "hallnwse"
         return TILE_NAME[t]
 
     pos = (r, c)
@@ -269,41 +302,41 @@ def _build_grid(tiles, wumpus_t, well_s, bat_s, foam_s, red_s):
             elif t != 0: ct = "corridor"
             else: ct = "empty"
             row.append({
-                "type":   ct,
-                "bg_img": _bg_img(tiles, r, c, well_s, foam_s, red_s),
-                "open_N": _is_passable(tiles, r, c, "N"),
-                "open_S": _is_passable(tiles, r, c, "S"),
-                "open_E": _is_passable(tiles, r, c, "E"),
-                "open_W": _is_passable(tiles, r, c, "W"),
+                "type":    ct,
+                "bg_img":  _bg_img(tiles, r, c, well_s, foam_s, red_s),
+                "open_N":  _is_passable(tiles, r, c, "N"),
+                "open_S":  _is_passable(tiles, r, c, "S"),
+                "open_E":  _is_passable(tiles, r, c, "E"),
+                "open_W":  _is_passable(tiles, r, c, "W"),
             })
         grid.append(row)
     return grid
 
 # Fonction qui transforme l'état du jeu en grille affichable 
 def get_grid(state):
-    tiles     = state["tiles"]
-    wumpus_t  = tuple(state["wumpus"])
-    puits_s   = set(map(tuple, state["well"]))
+    tiles = state["tiles"]
+    wumpus_t = tuple(state["wumpus"])
+    puits_s = set(map(tuple, state["well"]))
     chauves_s = set(map(tuple, state["bat"]))
-    mousse_s  = set(map(tuple, state["foam"]))
-    rouge_s   = set(map(tuple, state["red"]))
+    mousse_s = set(map(tuple, state["foam"]))
+    rouge_s = set(map(tuple, state["red"]))
     return _build_grid(tiles, wumpus_t, puits_s, chauves_s, mousse_s, rouge_s)
 
-# Fonction qui calcule les perceptions du joueur(odeur, vents) => se sont les messages affiché si on se rapproche de quelque choses
+# Fonction qui calcule les perceptions du joueur(odeur, vents)
 def _calc_percepts(state):
     pos = (state["player"]["y"], state["player"]["x"])
-    p   = []
+    p = []
     if pos in set(map(tuple, state["red"])):
         p.append("stench")
     if pos in set(map(tuple, state["foam"])):
         p.append("breeze")
     return p
 
-# Fonction qui initilise une nouvelle partie avec tout les éléments du jeu selon le choix de la difficulté et du mode 
+# Fonction qui initilise une nouvelle partie
 def new_game_state(difficulty="easy", mode="normal", vision="normal"):
-    p      = PARAMS.get(difficulty, PARAMS["easy"])
-    tiles  = _generate(p["nb_corridors"])
-    ent    = _place_entities(tiles, NB_WELL, p["nb_bat"])
+    p = PARAMS.get(difficulty, PARAMS["easy"])
+    tiles = _generate(p["nb_corridors"])
+    ent = _place_entities(tiles, NB_WELL, p["nb_bat"])
     jr, jc = ent["player"]
 
     grid_map = [[CAVERN if tiles[r][c] == 0 else CORRIDOR for c in range(COLS)]
@@ -339,7 +372,29 @@ def cell_is_visible(state, x, y):
         return state["player"]["x"] == x and state["player"]["y"] == y
     return state["reveals"][y][x]
 
-# Fonction qui contrimé au déplacement du joueur et gère les collision et morts 
+# Fonctions qui contribu au déplacement du joueur et gère les collision et morts 
+def _handle_arrival(state, ny, nx):
+    if [ny, nx] in state["well"]:
+        state["game_over"] = True
+        state["result"] = "dead_slime"
+        _reveal_all(state)
+        return state, True
+
+    if [ny, nx] == state["wumpus"]:
+        state["game_over"] = True
+        state["result"] = "dead_wumpus"
+        _reveal_all(state)
+        return state, True
+
+    hit_bat = [ny, nx] in state["bat"]
+    state = _check_bat(state, ny, nx)
+
+    if not state["game_over"]:
+        state["percepts"] = _calc_percepts(state)
+
+    return state, hit_bat
+
+
 def move_player(state, direction):
     if state["game_over"]:
         return state
@@ -348,43 +403,77 @@ def move_player(state, direction):
     if dl not in OPP:
         return state
 
-    tiles  = state["tiles"]
-    py, px = state["player"]["y"], state["player"]["x"]
-    tc = tiles[py][px]
+    tiles = state["tiles"]
 
-    if tc != 0 and tc in TILE_DIRS and dl not in TILE_DIRS[tc]:
+    def do_one_move():
+        py = state["player"]["y"]
+        px = state["player"]["x"]
+        tc = tiles[py][px]
+
+        if tc != 0 and tc in TILE_DIRS and dl not in TILE_DIRS[tc]:
+            return False
+
+        ny, nx = _move_destination(tiles, py, px, dl)
+
+        if (ny, nx) == (py, px):
+            return False
+
+        state["player"]["y"] = ny
+        state["player"]["x"] = nx
+        state["last_dir"] = direction
+        state["reveals"][ny][nx] = True
+
+        state_after, must_stop = _handle_arrival(state, ny, nx)
+
+        return not must_stop and not state_after["game_over"]
+
+    # Mode normal : un seul déplacement
+    if state.get("mode") != "express":
+        do_one_move()
         return state
 
-    ny, nx = _move_destination(tiles, py, px, dl)
+    # Mode express :
+    # avance jusqu'au bord
+    # ne traverse pas automatiquement
+    # si le joueur est déjà au bord et appuie encore, il traverse !
+    moved = False
+    seen = {(state["player"]["y"], state["player"]["x"])}
 
-    dr, dc = _dir_vec(dl)
-    r2, c2 = _wrap(py + dr, px + dc)
-    seen   = set()
-    while tiles[r2][c2] != 0 and (r2, c2) not in seen and (r2, c2) != (ny, nx):
-        seen.add((r2, c2))
-        state["reveals"][r2][c2] = True
-        r2, c2 = _wrap(r2 + dr, c2 + dc)
+    for _ in range(ROWS * COLS):
+        py = state["player"]["y"]
+        px = state["player"]["x"]
+        dr, dc = _dir_vec(dl)
 
-    state["player"]["y"] = ny
-    state["player"]["x"] = nx
-    state["last_dir"] = direction
-    state["reveals"][ny][nx] = True
+        next_r = py + dr
+        next_c = px + dc
 
-    if [ny, nx] in state["well"]:
-        state["game_over"] = True
-        state["result"] = "dead_slime"
-        _reveal_all(state)
-        return state
+        is_leaving_map = (
+            next_r < 0 or next_r >= ROWS or
+            next_c < 0 or next_c >= COLS
+        )
 
-    if [ny, nx] == state["wumpus"]:
-        state["game_over"] = True
-        state["result"] = "dead_wumpus"
-        _reveal_all(state)
-        return state
+        # Si on a déjà bougé pendant ce tour express,
+        # on s'arrête au bord au lieu de wrap.
+        if is_leaving_map and moved:
+            break
 
-    state = _check_bat(state, ny, nx)
-    if not state["game_over"]:
-        state["percepts"] = _calc_percepts(state)
+        can_continue = do_one_move()
+        moved = True
+
+        pos = (state["player"]["y"], state["player"]["x"])
+
+        if not can_continue:
+            break
+
+        # Si on vient de wrap depuis le bord, on s'arrête directement.
+        if is_leaving_map:
+            break
+
+        if pos in seen:
+            break
+
+        seen.add(pos)
+
     return state
 
 # Fonction qui gère la téléportation du joueur en cas de rencontre avec une chauve-souris
@@ -404,7 +493,6 @@ def _check_bat(state, r, c):
     if not free:
         return state
 
-    # Téléportation dès la 1ère visite
     dest = random.choice(free)
     state["player"]["y"] = dest[0]
     state["player"]["x"] = dest[1]
@@ -426,7 +514,7 @@ def _check_bat(state, r, c):
 
     return state
 
-# Fonction qui va gèrer le tir de la flèche et qui va déterminé si le wumpus va être touché ou non 
+# Fonction qui va gèrer le tir de la flèche
 def shoot_arrow(state, direction):
     if state["game_over"] or not state["has_arrow"]:
         return state
