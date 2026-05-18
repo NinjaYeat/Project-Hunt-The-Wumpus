@@ -50,40 +50,42 @@
     </form>
   {% endif %}
 
-  <div class="move_pad">
-    <form method="POST" action="{{ url_for('move') }}" class="move_form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if not state.game_over %}
+    <div class="move_pad">
+      <form method="POST" action="{{ url_for('move') }}" class="move_form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-      <div class="action_type_selector">
-        <label>
-          <input type="radio" name="action_type" value="move" checked>
-          🚶 Mouvement
-        </label>
-        <label>
-          <input type="radio" name="action_type" value="shoot">
-          🏹 Tirer Flèche
-        </label>
-      </div>
+        <div class="action_type_selector">
+          <label>
+            <input type="radio" name="action_type" value="move" checked>
+            🚶 Mouvement
+          </label>
+          <label>
+            <input type="radio" name="action_type" value="shoot">
+            🏹 Tirer Flèche
+          </label>
+        </div>
 
-      {% set py = state.player.y %}
-      {% set px = state.player.x %}
-      {% set cj = state.grid[py][px] %}
+        {% set py = state.player.y %}
+        {% set px = state.player.x %}
+        {% set cj = state.grid[py][px] %}
 
-      <div class="dpad_row">
-        <button name="dir" value="N" class="game_btn"
-          {% if state.game_over or not cj.open_N %}disabled{% endif %}>▲ N</button>
-      </div>
-      <div class="dpad_row">
-        <button name="dir" value="W" class="game_btn"
-          {% if state.game_over or not cj.open_W %}disabled{% endif %}>◀ W</button>
-        <button name="dir" value="S" class="game_btn"
-          {% if state.game_over or not cj.open_S %}disabled{% endif %}>▼ S</button>
-        <button name="dir" value="E" class="game_btn"
-          {% if state.game_over or not cj.open_E %}disabled{% endif %}>E ▶</button>
-      </div>
+        <div class="dpad_row">
+          <button name="dir" value="N" class="game_btn"
+            {% if not cj.open_N %}disabled{% endif %}>▲ N</button>
+        </div>
+        <div class="dpad_row">
+          <button name="dir" value="W" class="game_btn"
+            {% if not cj.open_W %}disabled{% endif %}>◀ W</button>
+          <button name="dir" value="S" class="game_btn"
+            {% if not cj.open_S %}disabled{% endif %}>▼ S</button>
+          <button name="dir" value="E" class="game_btn"
+            {% if not cj.open_E %}disabled{% endif %}>E ▶</button>
+        </div>
 
-    </form>
-  </div>
+      </form>
+    </div>
+  {% endif %}
 
   <table class="board">
     <tbody>
@@ -91,10 +93,10 @@
       <tr>
         {% for x in range(state.w) %}
 
-          {% if state.vision == "blind" %}
+          {% if state.vision == "blind" and not state.game_over %}
             {% set visible = (state.player.x == x and state.player.y == y) %}
           {% else %}
-            {% set visible = true %}
+            {% set visible = state.reveals[y][x] %}
           {% endif %}
 
           {% set is_player = (state.player.x == x and state.player.y == y) %}
@@ -104,6 +106,15 @@
             <td class="cell cell_hidden"></td>
           {% else %}
             <td class="cell bg_{{ cell.bg_img }}">
+
+              {% if cell.type == "wumpus" %}
+                <div class="cell_sprite sprite_wumpus"></div>
+              {% elif cell.type == "slime" %}
+                <div class="cell_sprite sprite_slime"></div>
+              {% elif cell.type == "bat" %}
+                <div class="cell_sprite sprite_bat"></div>
+              {% endif %}
+
               {% if is_player %}
                 {% if state.last_dir == "N" %}
                   <div class="cell_sprite sprite_player_n"></div>
@@ -114,13 +125,8 @@
                 {% else %}
                   <div class="cell_sprite sprite_player_s"></div>
                 {% endif %}
-              {% elif cell.type == "wumpus" %}
-                <div class="cell_sprite sprite_wumpus"></div>
-              {% elif cell.type == "slime" %}
-                <div class="cell_sprite sprite_slime"></div>
-              {% elif cell.type == "bat" %}
-                <div class="cell_sprite sprite_bat"></div>
               {% endif %}
+
             </td>
           {% endif %}
 
